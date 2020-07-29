@@ -1,0 +1,75 @@
+{% extends "base.html.twig" %}
+
+{% block html_head_locales %}
+{% endblock %}
+
+{% block body %}
+    {% if not app.request.xmlHttpRequest %}
+    <div id="headline">
+        {% block headline %}
+            <a class="tab logo" href="https://www.runalyze.com/" target="_blank">Runalyze</a>
+        {% endblock %}
+    </div>
+
+    <script>(function($){$(document).ready(function(){ Runalyze.init(); });})(jQuery);</script>
+
+    <div id="overlay" style="display:block;"></div>
+
+    <div id="ajax-outer">
+        <div id="ajax" class="panel" style="display:block;">
+
+            <div class="panel-heading">
+                <h1>{{ page_title|default('RUNALYZE') }}</h1>
+            </div>
+
+            <div class="panel-content">
+                <p class="c text">
+                    <img src="{{ asset('assets/images/runalyze-start.png') }}">
+                </p>
+            </div>
+    {% else %}
+            <div class="panel-heading margin-bottom">
+                <h1>{% trans %}Problem{% endtrans %}</h1>
+            </div>
+    {% endif %}
+
+            <div class="panel-content">
+                <div class="installer-window-container">
+                    <div class="w50 c" id="login-window">
+                        {% block content %}
+                            <h3>{% trans %}Sorry!{% endtrans %} - {% trans %}There was a problem.{% endtrans %}</h3>
+
+                            <p class="text">
+                                {% trans %}Looks like something went wrong here.{% endtrans %}
+
+                                {% if not app.request.xmlHttpRequest %}
+                                <br>
+                                <a href="{{ path('base_url') }}">{% trans %}Let's go back to RUNALYZE!{% endtrans %}</a>
+                                {% endif %}
+                            </p>
+                        {% endblock %}
+                    </div>
+
+                    {% if not app.request.xmlHttpRequest %}
+                    {% block showcase %}
+                        {% include 'home_feature_showcase.html.twig' %}
+                    {% endblock %}
+
+                    <p class="small clearfix">
+                        <span class="right">
+                            <a href="http://help.runalyze.com/" target="_blank">{% trans %}Help and Support{% endtrans %}</a>
+                            &nbsp;&middot;&nbsp; <a href="https://forum.runalyze.com/" target="_blank">{% trans %}Forum{% endtrans %}</a>
+                            &nbsp;&middot;&nbsp; <a href="https://blog.runalyze.com/" target="_blank">{% trans %}Blog{% endtrans %}</a>
+                        </span>
+
+                        &copy; {{ "now"|date("Y") }} RUNALYZE Team
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+    {% if not app.request.xmlHttpRequest %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

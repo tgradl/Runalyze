@@ -1,0 +1,203 @@
+@flot-background-color:			transparent;
+@flot-width:					480px;
+@flot-height:					190px;
+
+@flot-label-color:				@font-color;
+@flot-label-font-size:			10px;
+
+@flot-legend-color:				@font-color;
+@flot-legend-padding:			0px 2px;
+
+@flot-error-color:				#545454;
+@flot-error-background:			rgba(255,255,255,0.4);
+@flot-error-font-size:			9px;
+@flot-error-border:				#eee;
+@flot-error-padding:			5px;
+
+@flot-annotation-color:			#fff;
+@flot-annotation-background:	#000;
+@flot-annotation-font-size:		10px;
+@flot-annotation-padding:		1px 3px;
+@flot-annotation-margin:		2px 0 0 2px;
+
+@flot-tooltip-font-size:		10px;
+
+
+
+.flot-menu {
+	float: right;
+	line-height: 14px;
+
+	&.flot-menu-inline {
+		float: none;
+		text-align: right;
+		padding: 5px;
+	}
+
+	.link {
+		display: inline-block;
+		border-left: 2px solid #666;
+		padding-left: 5px;
+		margin-left: 10px;
+
+		&.unimportant {
+			border-color: #ccc;
+		}
+	}
+}
+
+#flot-loader {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: -9999px;
+    width: 500px;
+    height: 150px;
+}
+
+.flot-changeable .flot {
+	position: absolute !important;
+}
+
+.flot-hide {
+	visibility: hidden;
+
+	.legend, .tickLabel, .flot-tick-label {
+		display: none;
+	}
+}
+
+.flot {
+	position: relative !important;
+	margin: 0 auto 10px;
+	width: @flot-width;
+	height: @flot-height;
+	background: @flot-background-color;
+
+	&.fullscreen {
+		position: fixed !important;
+		top: 0;
+		left: 0;
+		margin: 0;
+		z-index: @z-index-fullscreen;
+		background: @overlay-fullscreen-background;
+	}
+
+	.tickLabel, .legend td, .flot-tick-label {
+		color: @flot-label-color;
+		line-height: 1;
+		font-size: @flot-label-font-size !important;
+	}
+
+	.legend table {
+		background-color: rgba(255,255,255,.7);
+		padding: 0;
+		margin: 0 !important;
+	}
+
+	.legend {
+		td {
+			color: @flot-legend-color;
+			vertical-align: middle;
+			padding: @flot-legend-padding;
+
+			&.legendLabel {
+				padding-right: 5px;
+			}
+
+			&.legendColorBox {
+				//
+			}
+		}
+	}
+
+	.flot-error {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		width: 100%;
+		text-align: center;
+
+		span {
+			border: 1px solid @flot-error-border;
+			background-color: @flot-error-background;
+			margin: 0 auto;
+			padding: @flot-error-padding;
+			font-weight: bold;
+			font-size: @flot-error-font-size;
+			color: @flot-error-color;
+		}
+	}
+
+	.annotation {
+		position: absolute;
+		background-color: @flot-annotation-background;
+		padding: @flot-annotation-padding;
+		margin: @flot-annotation-margin;
+		font-size: @flot-annotation-font-size;
+		color: @flot-annotation-color;
+	}
+
+	.tooltip {
+		display: none;
+		position: fixed;
+		font-size: @flot-tooltip-font-size;
+		text-align: left;
+
+		&.in {
+			display: block;
+			opacity: 1;
+		}
+	}
+
+	.tooltip span {
+		font-weight: bold;
+	}
+}
+
+.flot:hover .flot-options {
+	display: block;
+}
+
+.flot-options {
+	position: absolute;
+	z-index: @z-index-map-options;
+	display: none;
+	top: 2px;
+	right: 2px;
+	background: #fff;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+	border-radius: 4px;
+	height: 20px;
+	line-height: 20px;
+}
+
+.flot-option {
+	cursor: pointer;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+	text-align: center;
+	border-left: 1px solid #ccc;
+
+	&.option-toggled {
+		color: #ccc;
+	}
+
+	&:hover {
+		background-color: #f4f4f4;
+	}
+
+	&:first-child {
+		border-radius: 4px 0 0 4px;
+	}
+
+	&:last-child {
+		border-radius: 0 4px 4px 0;
+	}
+}
+
+.fullscreen .flot-option.fa-expand::before {
+	content: '\f066';
+}

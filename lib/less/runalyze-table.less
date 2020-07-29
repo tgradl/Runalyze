@@ -1,0 +1,205 @@
+@table-margin:						5px auto 10px;
+@table-padding:						3px 3px;
+@table-padding-more:				5px 3px;
+@table-padding-more-more:			5px 2em;
+@table-head-border:					#666;
+@table-border:						#eee;
+@table-border-section:				#999;
+@table-border-section-light:		#ccc;
+@table-color-hover:					#000;
+@table-background:					rgba(240,240,245,.4);
+@table-background-odd:				rgba(250,250,255,.4);
+@table-background-odd-blue:			rgba(230,230,255,.7);
+@table-background-hover:			rgba(255,255,255,.5);
+@table-background-highlight:		#ff6;
+@table-background-highlight-hover:	#ff0;
+@table-sortable-border:				darken(@table-border, 5%);
+@table-sortable-background:			#efefef;
+@table-sortable-padding-right:		14px;
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin: @table-margin;
+}
+
+tr, td {
+	padding: @table-padding;
+	vertical-align: top;
+}
+
+thead th, tbody.asThead th, thead tr {
+	padding: @table-padding;
+	vertical-align: middle;
+	border-color: @table-head-border;
+	border-style: none none solid none;
+	border-width: 0 0 1px 0;
+	text-align: center;
+}
+
+.more-padding {
+	thead th, tbody.asThead th, td {
+		padding: @table-padding-more;
+	}
+}
+
+.more-more-padding {
+	thead th, tbody.asThead th, td {
+		padding: @table-padding-more-more;
+	}
+}
+
+thead.r th {
+	text-align: right;
+}
+
+tbody.asThead th {
+	text-align: inherit;
+}
+
+td img {
+	vertical-align: middle;
+}
+
+td.as-small-as-possible {
+	width: 1px;
+	white-space: nowrap;
+}
+
+tbody.top-spacer tr:first-child,
+tbody.top-spacer tr:first-child td,
+tr.top-spacer, td.top-spacer,
+.zebra-style tbody .top-spacer {
+	border-top: 1px solid @table-head-border;
+}
+.top-separated-light,
+.zebra-style tbody .top-separated-light {
+	border-top: 1px solid @table-border-section-light;
+}
+.top-separated,
+.zebra-style tbody .top-separated {
+	border-top: 1px solid @table-border-section;
+}
+
+tr.bottom-spacer, tr.bottom-spacer td, td.bottom-spacer {
+	border-bottom: 1px solid @table-head-border;
+}
+
+tr.space-line, tr.space-line td {
+	height: 1px;
+	line-height: 1px;
+	font-size: 0;
+	padding: 0;
+	background: @table-border;
+	border: none !important;
+}
+
+tr.space-line.zebra-corrector, tr.space-line.zebra-corrector td {
+	height: 0;
+	line-height: 0;
+	background: inherit;
+}
+
+.zebra-style {
+	tbody.top-and-bottom-border {
+		tr:first-child {
+			border-top: 1px solid @table-head-border;
+		}
+
+		tr:last-child {
+			border-bottom: 1px solid @table-head-border;
+		}
+	}
+
+	tbody.asThead tr {
+		border-top: none;
+	}
+
+	tbody tr {
+		background-color: @table-background;
+		border-top: 1px solid @table-border;
+
+		&:hover {
+			background-color: @table-background-hover !important;
+			color: @table-color-hover;
+		}
+
+		&.highlight, td.highlight {
+			background: @table-background-highlight !important;
+
+			&:hover {
+				background: @table-background-highlight-hover !important;
+			}
+		}
+
+		&.no-zebra, td.no-zebra {
+			background: transparent !important;
+		}
+
+		&.no-border {
+			border-top: none;
+		}
+	}
+
+	tbody tr:nth-child(2n+1) {
+		background-color: @table-background-odd;
+	}
+}
+
+.zebra-blue tbody tr:nth-child(2n+1) {
+	background-color: @table-background-odd-blue;
+}
+
+.sortable {
+	thead th {
+		border: 1px solid @table-sortable-border;
+		background-color: @table-sortable-background;
+
+		&.tablesorter-header {
+			padding-right: @table-sortable-padding-right;
+			cursor: pointer;
+			position: relative;
+
+			> div:after {
+				position: absolute;
+				right: 0;
+				display: inline-block;
+				width: @table-sortable-padding-right;
+				text-align: center;
+				font-family: FontAwesome;
+				font-style: normal;
+				-webkit-font-smoothing: antialiased;
+				content: "\f0dc";
+			}
+
+			&.sorter-false {
+				cursor: default;
+				padding-right: 0;
+
+				& > div:after {
+					display: none;
+				}
+			}
+		}
+
+		&.tablesorter-header:hover,
+		&.tablesorter-headerDesc:hover,
+		&.tablesorter-headerDesc {
+			> div:after {
+				content: "\f0de";
+			}
+		}
+
+		&.tablesorter-headerAsc:hover,
+		&.tablesorter-headerAsc {
+			> div:after {
+				content: "\f0dd";
+			}
+		}
+
+		&.tablesorter-headerDesc,
+		&.tablesorter-headerAsc {
+			font-style: italic;
+		}
+	}
+}

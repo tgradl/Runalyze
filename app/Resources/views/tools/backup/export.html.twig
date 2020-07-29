@@ -1,0 +1,74 @@
+{% extends 'tools/backup/base.html.twig' %}
+
+{% block toolContent %}
+    {% if backupjobWasCreated %}
+        <div class="panel-container">
+            <p class="okay">
+                {% trans %}Your backup job has been created and is performed in the background.{% endtrans %}
+                {% trans %}We will notify you when the file is ready for downloading.{% endtrans %}
+                {% trans %}You can close this window.{% endtrans %}</p>
+        </div>
+    {% else %}
+        <div class="panel-content">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'ajax no-automatic-reload'}, 'action': url('tools-backup')}) }}
+
+            <fieldset>
+                <legend>{% trans %}Details{% endtrans %}</legend>
+                {{ form_row(form.fileFormat,  {'div_class': 'w50'}) }}
+            </fieldset>
+
+            <div class="c">
+                <input type="submit" value="{% trans %}Create backup{% endtrans %}">
+            </div>
+
+            <div class="fieldset-messages">
+                <p class="info">
+                    <strong>{% trans %}JSON-format{% endtrans %} (*.json.gz)</strong><br>
+                    <small>
+                        {% trans %}Portable backup of your configuration and data -
+                        This file can be imported into any other installation, using this plugin.<br />
+                        This way you can transfer your data from to local to an online installation and back.
+                        {% endtrans %}
+                    </small>
+                </p>
+                <p class="info">
+                    <strong>{% trans %}SQL-format{% endtrans %} (*.sql.gz)</strong><br>
+                    <small>
+                        {% trans %}Backup of the complete database -
+                        This file can be imported manually with e.g. PHPMyAdmin into any database.<br />
+                        This is recommended to create a backup copy or to import your data into a new installation.
+                        {% endtrans %}
+                    </small>
+                </p>
+            </div>
+
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+
+
+        </div>
+    {% endif %}
+
+
+    {% if hasFiles %}
+    <div class="panel-content">
+        <form action="{{ url('tools-backup') }}" method="post" id="backup-list">
+            <fieldset>
+                <legend>{% trans %}Available exports{% endtrans %}</legend>
+
+                {% set prefix = app.user.id ~ "-runalyze-backup-" %}
+
+                <div class="fieldset-messages">
+                    {% for file in files %}
+                        <p class="file">
+                            <strong>{{ file.mTime|date('d.m.Y, H:i') }}:</strong>
+                            <a href="{{ url('tools-backup-download', {'filename': file.filename|replace({(prefix): ''})}) }}">{{ file.filename|replace({(prefix): ''}) }}, {{ file.size|filesize }}</a>
+                        </p>
+                    {% endfor %}
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    {% endif %}
+{% endblock %}

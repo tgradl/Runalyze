@@ -1,0 +1,21 @@
+{% extends "base_logged_in.twig" %}
+
+{% block content %}
+    <div class="glossary">
+        {% block panelHeading %}
+        <div class="panel-heading">
+            <h1>
+                <a href="{{ path('glossary-index') }}">{% trans %}Glossary{% endtrans %}</a>
+            </h1>
+        </div>
+        {% endblock %}
+
+        {% block panelContent %}
+        <div class="panel-content">
+            <h2>{% block headline %}{% endblock %}</h2>
+
+            {% block glossaryContent %}{% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+{% endblock %}

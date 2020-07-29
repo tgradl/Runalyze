@@ -1,0 +1,16 @@
+{% extends 'account/recover/base.html.twig' %}
+
+{% block form %}
+
+    {{ form(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_row(form.username) }}
+
+    <p class="info">
+        {% trans %}A link for changing your password will be sent via email.{% endtrans %}
+    </p>
+
+    <div class="c">
+        <input type="submit" value="{% trans %}Send link{% endtrans %}" name="submit">
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

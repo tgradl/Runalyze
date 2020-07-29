@@ -1,0 +1,7 @@
+{% extends 'account/recover/base_hash_given.html.twig' %}
+
+{% block form %}
+    <p class="error">
+        {% trans %}Your password recovery link is not valid. Maybe the link has already expired.{% endtrans %}
+    </p>
+{% endblock %}

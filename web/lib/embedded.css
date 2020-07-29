@@ -1,0 +1,71 @@
+.runalyze-emb {
+	position: relative;
+	border-radius: 5px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+	border: 1px solid #DDD;
+	border-top-color: #EEE;
+	border-bottom-color: #BBB;
+	background-color: #FFF;
+	max-width: 500px;
+	min-width: 250px;
+	margin: 0 auto;
+	padding: 10px 10px 15px 10px;
+	color: #333;
+	font: 12px/16px Verdana, sans-serif;
+}
+
+.runalyze-emb:hover {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+}
+
+.runalyze-emb-infos span {
+	position: relative;
+	display: block;
+	float: left;
+	height: 16px;
+	padding: 3px 0 3px 20px;
+	margin: 0 10px;
+	color: #666;
+	font-size: .9em;
+	background-repeat: no-repeat;
+}
+
+.runalyze-emb-infos span:before {
+	font-family: 'FontAwesome';
+	position: absolute;
+	left: 0;
+	width: 20px;
+	text-align: center;
+	line-height: 20px;
+}
+
+.runalyze-emb-time:before { content: '\f017'; }
+.runalyze-emb-pace:before { content: '\f0e4'; }
+.runalyze-emb-heart:before { content: '\f004'; color: #800; }
+.runalyze-emb-elev:before { content: '\f07d'; color: rgb(227,217,187); }
+
+.runalyze-emb a:hover {
+	color: #999 !important;
+	text-decoration: underline;
+}
+
+.runalyze-emb-runalyze {
+	float: right;
+	font-weight: bold;
+	color: #666 !important;
+	text-decoration: none !important;
+}
+
+.runalyze-emb-share {
+	position: absolute;
+	bottom: 5px;
+	right: 10px;
+	color: #CCC !important;
+	float: right;
+	font-size: .9em;
+	text-decoration: none !important;
+}
+
+.runalyze-clear {
+	clear: both;
+}

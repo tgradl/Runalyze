@@ -1,0 +1,33 @@
+{
+  "name": "Runalyze",
+  "version": "4.3.0",
+  "description": "Runalyze - training analysis for athletes",
+  "homepage": "https://runalyze.com/",
+  "engines": {
+    "npm": "~5.6.0",
+    "node": "~8.9.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Runalyze/Runalyze.git"
+  },
+  "main": "gulpfile.js",
+  "scripts": {
+    "postinstall": "bower install"
+  },
+  "devDependencies": {
+    "bower": "~1.8.0",
+    "del": "~2.2.2",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-clean-css": "~3.4.0",
+    "gulp-cli": "gulpjs/gulp-cli",
+    "gulp-concat": "~2.6.1",
+    "gulp-less": "~3.3.0",
+    "gulp-phpunit": "~0.15.2",
+    "gulp-rename": "~1.2.2",
+    "gulp-shell": "~0.5.2",
+    "gulp-sourcemaps": "~1.12.0",
+    "gulp-uglify": "~1.5.4",
+    "d3-scale-chromatic": "^1.2.0"
+  }
+}

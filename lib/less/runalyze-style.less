@@ -1,0 +1,101 @@
+@import "runalyze-colors.less";
+@import "runalyze-config.less";
+@import "runalyze-mixins.less";
+
+
+* {
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+
+
+* html .clearfix {
+	height: 1%;
+}
+
+* + html .clearfix {
+	display: inline-block;
+}
+
+.clearfix:after {
+	content: '.';
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+body {
+	font-weight: @font-weight;
+	font-size: @font-size;
+	line-height: @line-height;
+	font-family: @font-family;
+	color: @font-color;
+	background-size: cover;
+	background-attachment: fixed;
+	background-image: url(../../web/assets/v2.x/img/backgrounds/runalyze.jpg);
+
+	&#home { min-width: 1024px; }
+}
+
+#main {
+	width: 100%;
+}
+
+#container {
+	min-width: 654px;
+	padding-right: 344px;
+	position: relative;
+}
+
+#panels {
+	position: absolute;
+	top: -5px;
+	right: 0;
+	width: 344px;
+}
+
+
+@import "runalyze-installer.less";
+@import "runalyze-shared.less";
+@import "runalyze-headline.less";
+@import "runalyze-formulars.less";
+@import "runalyze-overlay.less";
+@import "runalyze-content.less";
+@import "runalyze-container.less";
+@import "runalyze-table.less";
+@import "runalyze-training.less";
+@import "runalyze-mobile.less";
+
+@import "runalyze-progressbar.less";
+@import "runalyze-boxedvalues.less";
+@import "runalyze-barchart.less";
+
+@import "runalyze-icons.less";
+@import "runalyze-sprites.less";
+@import "runalyze-tooltip.less";
+@import "runalyze-blocklist.less";
+@import "runalyze-flot.less";
+@import "runalyze-datepicker.less";
+@import "runalyze-d3js.less";
+@import "runalyze-d3js-race-performance-chart.less";
+@import "runalyze-climbs.less";
+@import "runalyze-pace.less";
+
+
+@import "../../web/vendor/fontIconPicker/css/jquery.fonticonpicker.css";
+@import "../../web/vendor/fontIconPicker/themes/grey-theme/jquery.fonticonpicker.grey.css";
+@import "runalyze-fonticonpicker.less";
+
+@import "chosen.less";
+
+@import "../../web/vendor/leaflet/dist/leaflet.css";
+@import "runalyze-leaflet.less";
+
+@import "../../web/assets/v2.x/vendor/icons8/styles.css";
+
+@import "../../web/vendor/font-awesome/css/font-awesome.css";
+.fa-rotate-45{-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);-o-transform:rotate(45deg);transform:rotate(45deg)}
+
+@import "../../web/assets/v2.x/vendor/iconvault-forecast/iconvault-forecast.css";

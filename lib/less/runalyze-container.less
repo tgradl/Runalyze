@@ -1,0 +1,488 @@
+@panel-margin:					5px 5px 10px 5px;
+@panel-padding:					5px;
+@panel-border:					#000;
+@panel-background:				rgba(255,255,255,.95);
+@panel-heading-border:			#ccc;
+@panel-heading-color:			#800;
+@panel-heading-font-size:		11px;
+@panel-heading-line-height:		18px;
+@panel-nav-active-color:		#000;
+@panel-nav-active-border:		#000;
+@panel-icons-margin:			5px;
+@panel-hover-icons-color:		#666;
+@panel-hover-icons-color-hover:	#000;
+
+@loading-min-height:			50px;
+@loading-background-image:		url(../../web/assets/v2.x/img/wait.gif);
+@loading-background-color:		@panel-background;
+
+@databox-border:				#ccc;
+@databox-background:			#f6f6f6;
+@databox-margin:				5px;
+@databox-padding:				3px;
+
+@nav-submenu-hover:				#f7f7f9;
+
+
+.panel {
+	position: relative;
+	margin: @panel-margin;
+	background: @panel-background;
+	border: 1px solid @panel-border;
+}
+
+.panel-heading,
+.panel-content {
+	h1 {
+		padding: @panel-padding;
+		margin: 0;
+		font-size: @panel-heading-font-size;
+		text-transform: uppercase;
+		color: @panel-heading-color;
+		border: none;
+	}
+
+	h2 {
+		padding: @panel-padding;
+		margin: 0;
+		font-size: @panel-heading-font-size;
+		font-weight: bold;
+		text-transform: none;
+		letter-spacing: 1px;
+		border: none;
+	}
+}
+
+.panel-heading {
+	padding: @panel-padding;
+	border-bottom: 1px solid @panel-heading-border;
+	line-height: @panel-heading-line-height;
+
+	&.panel-sub-heading {
+		margin-top: 2*@panel-padding;
+		border-top: 1px solid @panel-heading-border;
+	}
+
+	&.panel-inner-heading {
+		border-top: 1px solid #eee;
+		background: #f6f6f6;
+		border-bottom: none;
+	}
+
+	h1, h2 {
+		display: inline;
+		padding: 0;
+		margin: 0;
+	}
+
+	.hover-icons {
+		display: inline;
+		opacity: 0;
+		transition: opacity 0.3s ease-out;
+		color: @panel-hover-icons-color;
+		margin: 0 @panel-icons-margin;
+
+		.fa:hover {
+			color: @panel-hover-icons-color-hover;
+		}
+	}
+
+	&:hover .hover-icons {
+		opacity: 1;
+	}
+
+	.change-menu {
+		float: right;
+
+		a {
+			display: inline-block;
+			padding-left: 5px;
+			margin-left: 10px;
+			border-left: 2px solid @panel-heading-border;
+			line-height: 1.2em;
+			color: #666;
+
+			&:hover {
+				color: #000;
+			}
+
+			&.triggered {
+				border-color: #666;
+				color: #333;
+			}
+		}
+	}
+}
+
+.icons-left {
+	float: left;
+	margin-right: @panel-icons-margin;
+}
+
+#panels .panel-menu {
+	a, .link {
+		.fa { // Don't know why ...
+			//line-height: 1;
+		}
+	}
+}
+
+.headline-menu,
+.panel-menu .with-submenu {
+	position: relative;
+
+	&:hover .submenu {
+		display: block;
+	}
+}
+
+.panel-menu,
+.headline-menu {
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style-type: none;
+	}
+
+	.submenu {
+		z-index: @z-index-menu;
+		display: none;
+		position: absolute;
+		min-width: 100%;
+		white-space: nowrap;
+
+		li {
+			margin: 0;
+			padding: 0;
+			text-shadow: none;
+			float: none;
+			display: block;
+			overflow: hidden;
+			width: 100%;
+
+			a, .link, .no-link {
+				display: block;
+				padding: @panel-padding (1.5*@panel-padding);
+				margin: 0;
+			}
+		}
+	}
+}
+
+.panel-menu {
+	float: right;
+	margin-left: @panel-icons-margin;
+	height: @panel-heading-line-height;
+
+	&.panel-menu-floated {
+		float: right;
+		top: 0;
+		right: 0;
+		margin-left: @panel-icons-margin;
+	}
+
+	&.panel-menu-text {
+		padding: @panel-padding 2*@panel-padding @panel-padding;
+		line-height: @heading-line-height;
+
+		a, .link {
+			display: inline;
+			padding: 0;
+			line-height: inherit;
+			border: none;
+		}
+	}
+
+	position: relative;
+	top: -@panel-padding;
+	right: -@panel-padding;
+
+	a, .link {
+		position: relative;
+		display: inline-block;
+		padding: @panel-padding 2*@panel-padding @panel-padding;
+		line-height: @heading-line-height;
+		border-left: 1px solid @panel-heading-border;
+
+		.fa {
+			//line-height: @heading-line-height;
+		}
+	}
+
+	ul {
+		li {
+			position: relative;
+			display: inline-block;
+			border-bottom: 1px solid @panel-heading-border;
+
+			&.active, &.triggered, &:hover {
+				color: @panel-nav-active-color;
+				border-bottom-color: @panel-nav-active-border;
+				background-color: @nav-submenu-hover;
+			}
+		}
+
+		.with-submenu {
+			> a, > .link {
+				line-height: (@heading-line-height - 1px);
+
+				&:after {
+					content: ' \f107';
+					font-family: FontAwesome;
+				}
+			}
+		}
+
+		.submenu {
+			border-top: 1px solid @panel-heading-border;
+			border-right: 1px solid @panel-heading-border;
+			background-color: @panel-background;
+		}
+	}
+}
+
+.inline-menu {
+	color: #666;
+	font-weight: normal;
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style-type: none;
+
+		li {
+			margin: 0;
+			padding: 0;
+			position: relative;
+			display: inline-block;
+		}
+
+		.with-submenu {
+			> .link {
+				display: block;
+				white-space: nowrap;
+
+				&:after {
+					content: ' \f107';
+					font-family: FontAwesome;
+				}
+			}
+
+			&:hover > .link {
+				color: @panel-nav-active-color;
+			}
+			&:hover .submenu {
+				display: block;
+			}
+		}
+
+		.submenu {
+			z-index: @z-index-menu;
+			display: none;
+			position: absolute;
+			white-space: nowrap;
+			border: 1px solid @panel-heading-border;
+			background-color: @panel-background;
+
+			li {
+				display: block;
+				overflow: hidden;
+				width: 100%;
+			}
+
+			a, span.link {
+				display: block;
+				padding: @panel-padding (1.5*@panel-padding);
+
+				&:hover {
+					background-color: @nav-submenu-hover;
+				}
+			}
+		}
+	}
+}
+
+.small-head-navi {
+	font-size: .8em;
+	padding-top: 4px;
+}
+
+.panel-content {
+	padding: @panel-padding;
+
+	&.nopadding {
+		padding: 0;
+	}
+
+	&.panel-sub-content {
+		border-top: 1px solid @panel-heading-border;
+	}
+}
+
+.panel-multiple-content {
+	display: none;
+
+	&.active {
+		display: block;
+	}
+}
+
+.loading {
+	min-height: @loading-min-height;
+	color: transparent;
+	background: @loading-background-image center center no-repeat transparent;
+
+	&.panel {
+		background: @loading-background-image center center no-repeat @loading-background-color;
+	}
+
+	* {
+		opacity: 0;
+		visibility: hidden;
+		transition: visibility 0s 0.4s, opacity 0.4s linear;
+	}
+}
+
+.wait-img {
+	background: @loading-background-image center center no-repeat !important;
+}
+
+#data-browser-container table {
+	width: 100%;
+}
+
+#data-browser, .statistics-container {
+	overflow: auto;
+}
+
+#statistics-nav {
+	margin: 0;
+	padding: 0;
+	border-bottom: 1px solid @panel-heading-border;
+
+	li {
+		display: inline-block;
+		padding: 0;
+		margin: 0;
+
+		a {
+			display: inline-block;
+			line-height: 18px;
+			height: 18px;
+			padding: 5px 10px;
+			border-right: 1px solid @panel-heading-border;
+			text-transform: uppercase;
+
+			color: #666;
+		}
+
+		&.active, &:hover {
+			background-color: @nav-submenu-hover;
+		}
+
+		&.active > a, &:hover > a {
+			color: #000;
+		}
+
+		&.with-submenu {
+			> a:after {
+				content: ' \f107';
+				font-family: FontAwesome;
+			}
+
+			&:hover {
+				> a {
+					border-bottom-color: transparent;
+				}
+
+				.submenu {
+					display: block;
+				}
+			}
+		}
+	}
+
+	> li {
+		margin-bottom: -1px;
+		border-bottom: 1px solid @panel-heading-border;
+
+		&.active, &:hover {
+			border-bottom-color: @panel-border;
+		}
+	}
+
+	ul.submenu {
+		z-index: @z-index-menu;
+		display: none;
+		position: absolute;
+		margin: 0 0 0 -1px;
+		padding: 0;
+		border: 1px solid @panel-heading-border;
+		border-bottom: none;
+		list-style-type: none;
+		background-color: @panel-background;
+
+		li {
+			overflow: hidden;
+			display: block;
+			border-bottom: 1px solid @panel-heading-border;
+
+			&.active, &:hover {
+				border-bottom-color: @panel-border;
+			}
+
+			a {
+				display: block;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				zoom: 1;
+				height: auto;
+				border-right: none;
+
+				&:hover {
+					background-color: @nav-submenu-hover;
+				}
+			}
+		}
+	}
+}
+
+#statistics-inner {
+	table {
+		margin: 5px 0 10px;
+	}
+}
+
+.databox {
+	float: left;
+	margin: @databox-margin;
+	padding: @databox-padding;
+	border: 1px solid @databox-border;
+	background: @databox-background;
+
+	tr, td {
+		padding: 3px;
+	}
+}
+
+.inline-head {
+	font-weight: bold;
+	padding-right: 10px;
+}
+
+.databox-header {
+	text-align: center;
+
+	a.change {
+		opacity: .5;
+
+		&.triggered {
+			opacity: 1;
+		}
+	}
+}
+
+.datepicker th, .datepicker td {
+	padding: 0 !important;
+}

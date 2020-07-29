@@ -1,0 +1,126 @@
+{% extends 'tools/database_cleanup/base.html.twig' %}
+
+{% block toolContent %}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'ajax no-automatic-reload'}, 'action': url('tools-cleanup')}) }}
+
+        <div class="padding-5">
+            <label>
+                {{ form_widget(form.mode[0]) }}
+                {{ form_label(form.mode[0]) }}
+            </label>
+
+            <div class="radio-content" data-radio="general">
+                <div class="margin-10 padding-5">
+                    <div class="checkbox">
+                        {{ form_widget(form.internals) }}
+                        {{ form_label(form.internals, 'Refresh internal constants'|trans) }}
+                    </div>
+
+                    <div class="checkbox">
+                        {{ form_widget(form.equipment) }}
+                        {{ form_label(form.equipment, 'Recalculate your equipment statistics'|trans) }}
+                    </div>
+
+                    <div class="checkbox">
+                        {{ form_widget(form.vo2maxCorrector) }}
+                        {{ form_label(form.vo2maxCorrector, 'Recalculate your effective %VO2max% correction factor'|trans({'%VO2max%': 'VO<sub>2</sub>max'}) ) }}
+                    </div>
+
+                    <div class="checkbox">
+                        {{ form_widget(form.vo2max) }}
+                        {{ form_label(form.vo2max, 'Recalculate your effective %VO2max% shape'|trans({'%VO2max%': 'VO<sub>2</sub>max'}) ) }}
+                    </div>
+
+                    <div class="checkbox">
+                        {{ form_widget(form.endurance) }}
+                        {{ form_label(form.endurance, 'Recalculate your marathon shape'|trans) }}
+                    </div>
+
+                    <div class="checkbox">
+                        {{ form_widget(form.trimp) }}
+                        {{ form_label(form.trimp, 'Recalculate maximal TRIMP values'|trans) }}
+                    </div>
+
+                    <div class="checkbox">
+                        {{ form_widget(form.cacheclean) }}
+                        {{ form_label(form.cacheclean, 'Clear your personal cache'|trans) }}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="padding-5">
+                {{ form_widget(form.mode[1]) }}
+                {{ form_label(form.mode[1]) }}
+
+            <div class="radio-content transparent-70" data-radio="loop">
+                <div class="margin-10">
+                    <p class="info">
+                        {% trans %}These recalculations are only needed if you changed the corresponding settings.{% endtrans %}<br>
+                        {% trans %}This task may take some time, since we have to loop through all your activities.{% endtrans %}
+                    </p>
+                </div>
+
+                <div class="margin-10 padding-5">
+                    <div class="checkbox">
+                        {{ form_widget(form.activityElevation) }}
+                        {{ form_label(form.activityElevation, 'Recalculate elevation'|trans) }}
+                        <div class="checkbox">
+                            {{ form_widget(form.activityElevationOverwrite) }}
+                            {{ form_label(form.activityElevationOverwrite, 'Overwrite manual values'|trans) }}
+                        </div>
+                    </div>
+                    <div class="checkbox">
+                            {{ form_widget(form.activityVO2max) }}
+                            {{ form_label(form.activityVO2max, 'Recalculate effective %VO2max% values'|trans({'%VO2max%': 'VO<sub>2</sub>max'}) ) }}
+                    </div>
+                    <div class="checkbox">
+                            {{ form_widget(form.activityTrimp) }}
+                            {{ form_label(form.activityTrimp, 'Recalculate TRIMP values'|trans) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="c">
+        <input type="submit" class="submit" value="{% trans %}Start cleanup{% endtrans %}">
+    </div>
+    {{ form_rest(form) }}
+    {{ form_end(form) }}
+    <script>
+        $(function(){
+            var $cleanup = $("#cleanup");
+            var $submit = $cleanup.find("input[type=submit]");
+
+            function updateCheckboxes() {
+                if ($(this).is(':checked')) {
+                    var val = $(this).attr('value');
+
+                    $cleanup.find(".radio-content").each(function(){
+                        if ($(this).attr('data-radio') != val) {
+                            $(this).addClass('transparent-70');
+                            $(this).find('input[type=checkbox]').attr('disabled', true);
+                        } else {
+                            $(this).removeClass('transparent-70');
+                            $(this).find('input[type=checkbox]').removeAttr('disabled');
+                        }
+                    });
+                }
+            }
+
+            function updateSubmitButton() {
+                if (0 < $cleanup.find("input[type=checkbox]:not(:disabled):checked").length) {
+                    $submit.removeAttr('disabled');
+                    $submit.removeClass('transparent-70');
+                } else {
+                    $submit.attr('disabled', true);
+                    $submit.addClass('transparent-70');
+                }
+            }
+
+            $cleanup.find("input[type=radio]").change(updateCheckboxes);
+            $cleanup.find("input").change(updateSubmitButton);
+        });
+    </script>
+{% endblock %}

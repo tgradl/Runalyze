@@ -1,0 +1,54 @@
+@icon-color-grey:				#999;
+@icon-color-green:				#8ab856;
+
+@icon-vo2max-color-up:			#009500;
+@icon-vo2max-color-up-half:		desaturate(@icon-vo2max-color-up, 50%);
+@icon-vo2max-color-half:		desaturate(@icon-vo2max-color-up, 100%);
+@icon-vo2max-color-down:		#ba0000;
+@icon-vo2max-color-down-half:	desaturate(@icon-vo2max-color-down, 50%);
+
+.fa-grey { color: @icon-color-grey; }
+.fa-green { color: @icon-color-green; }
+
+.vo2max-icon {
+	&.fa-arrow-up { color: @icon-vo2max-color-up; }
+	&.fa-arrow-up.fa-rotate-45 { color: @icon-vo2max-color-up-half; }
+	&.fa-arrow-right { color: @icon-vo2max-color-half; }
+	&.fa-arrow-down { color: @icon-vo2max-color-down; }
+	&.fa-arrow-right.fa-rotate-45 { color: @icon-vo2max-color-down-half; }
+}
+
+.rpe-icon {
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	line-height: 13px;
+	font-size: 9px;
+	border-radius: 50%;
+	text-align: center;
+	border: 2px solid transparent;
+}
+
+.windicon {
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	line-height: 13px;
+	text-align: center;
+	font-size: 7px;
+	border: 1px solid @font-color;
+	border-radius: 50%;
+	position: relative;
+	margin: 0 2px;
+}
+.windicon-direction {
+	position: absolute;
+	top: -3px;
+	left: 5px;
+	display: block;
+	width: 0;
+	height: 7px;
+	border-width: 6px 2px;
+	border-style: solid;
+	border-color: @font-color transparent transparent transparent;
+}
