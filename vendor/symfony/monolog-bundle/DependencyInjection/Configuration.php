@@ -625,7 +625,10 @@ class Configuration implements ConfigurationInterface
                             ->thenInvalid('Service handlers can not have a formatter configured in the bundle, you must reconfigure the service itself instead')
                         ->end()
                         ->validate()
-                            ->ifTrue(function ($v) { return ('fingers_crossed' === $v['type'] || 'buffer' === $v['type'] || 'filter' === $v['type']) && 1 !== count($v['handler']); })
+// avoid error: Invalid configuration for path "monolog.handlers.main": Warning: count(): Parameter must be an array or an object that implements Countable
+// i won't downgrade to PHP 7.1 or upgrade dependencies -> do a workaround -> https://github.com/partkeepr/PartKeepr/issues/905
+//                            ->ifTrue(function ($v) { return ('fingers_crossed' === $v['type'] || 'buffer' === $v['type'] || 'filter' === $v['type']) && 1 !== count($v['handler']); })
+                              ->ifTrue(function ($v) { return ('fingers_crossed' === $v['type'] || 'buffer' === $v['type'] || 'filter' === $v['type']) && (empty($v['handler']) || !is_string($v['handler'])); })
                             ->thenInvalid('The handler has to be specified to use a FingersCrossedHandler or BufferHandler or FilterHandler')
                         ->end()
                         ->validate()
