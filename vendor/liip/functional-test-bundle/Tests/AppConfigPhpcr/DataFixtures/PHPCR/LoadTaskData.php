@@ -11,9 +11,9 @@
 
 namespace Liip\FunctionalTestBundle\Tests\AppConfigPhpcr\DataFixtures\PHPCR;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ODM\PHPCR\DocumentManager;
 use Liip\FunctionalTestBundle\Tests\AppConfigPhpcr\Document\Task;
 
 class LoadTaskData implements FixtureInterface
@@ -22,6 +22,7 @@ class LoadTaskData implements FixtureInterface
     {
         if (!$manager instanceof DocumentManager) {
             $class = get_class($manager);
+
             throw new \RuntimeException("Fixture requires a PHPCR ODM DocumentManager instance, instance of '$class' given.");
         }
 

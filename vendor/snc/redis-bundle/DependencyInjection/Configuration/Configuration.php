@@ -36,8 +36,14 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('snc_redis');
+        $treeBuilder = new TreeBuilder('snc_redis');
+
+        if (method_exists($treeBuilder, 'getRootNode')) {
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            // BC layer for symfony/config 4.1 and older
+            $rootNode = $treeBuilder->root('snc_redis');
+        }
 
         $rootNode
             ->children()
@@ -78,12 +84,12 @@ class Configuration implements ConfigurationInterface
      */
     private function addClientsSection(ArrayNodeDefinition $rootNode)
     {
+        $loggingDefault = (version_compare(phpversion('redis'), '4.0.0') >= 0 ? false : $this->debug);
+
         $rootNode
             ->fixXmlConfig('client')
             ->children()
                 ->arrayNode('clients')
-                    ->isRequired()
-                    ->requiresAtLeastOneElement()
                     ->useAttributeAsKey('alias', false)
                     ->prototype('array')
                         ->fixXmlConfig('dsn')
@@ -95,28 +101,14 @@ class Configuration implements ConfigurationInterface
                                 ->end()
                             ->end()
                             ->scalarNode('alias')->isRequired()->end()
-                            ->booleanNode('logging')->defaultValue($this->debug)->end()
+                            ->booleanNode('logging')->defaultValue($loggingDefault)->end()
                             ->arrayNode('dsns')
                                 ->isRequired()
                                 ->performNoDeepMerging()
                                 ->beforeNormalization()
                                     ->ifString()->then(function($v) { return (array) $v; })
                                 ->end()
-                                ->beforeNormalization()
-                                    ->always()->then(function($v) {
-                                        return array_map(function($dsn) {
-                                            $parsed = new RedisDsn($dsn);
-
-                                            return $parsed->isValid() ? $parsed : $dsn;
-                                        }, $v);
-                                    })
-                                ->end()
-                                ->prototype('variable')
-                                    ->validate()
-                                        ->ifTrue(function($v) { return is_string($v); })
-                                        ->thenInvalid('The redis DSN %s is invalid.')
-                                    ->end()
-                                ->end()
+                                ->prototype('variable')->end()
                             ->end()
                             ->scalarNode('alias')->isRequired()->end()
                             ->arrayNode('options')
@@ -128,11 +120,8 @@ class Configuration implements ConfigurationInterface
                                     ->scalarNode('read_write_timeout')->defaultNull()->end()
                                     ->booleanNode('iterable_multibulk')->defaultFalse()->end()
                                     ->booleanNode('throw_errors')->defaultTrue()->end()
+                                    ->scalarNode('serialization')->defaultValue('default')->end()
                                     ->scalarNode('profile')->defaultValue('default')
-                                        ->beforeNormalization()
-                                            ->ifTrue(function($v) { return false === is_string($v); })
-                                            ->then(function($v) { return sprintf('%.1F', $v); })
-                                        ->end()
                                     ->end()
                                     ->scalarNode('cluster')->defaultNull()->end()
                                     ->scalarNode('prefix')->defaultNull()->end()

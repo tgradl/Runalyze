@@ -21,6 +21,7 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
  * So it must be loaded in a separate process.
  *
  * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class WebTestCaseConfigLeanFrameworkTest extends WebTestCase
 {
@@ -49,7 +50,7 @@ class WebTestCaseConfigLeanFrameworkTest extends WebTestCase
         $crawler = $client->request('GET', $path);
 
         try {
-            $this->assertValidationErrors(array(), $client->getContainer());
+            $this->assertValidationErrors([], $client->getContainer());
         } catch (\Exception $e) {
             $this->assertSame(
                 'Method Liip\FunctionalTestBundle\Utils\HttpAssertions::assertValidationErrors() can not be used as the validation component of the Symfony framework is disabled.',

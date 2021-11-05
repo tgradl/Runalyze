@@ -11,14 +11,21 @@
 
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
+// BC
+if (class_exists('\PHPUnit_Framework_AssertionFailedError')) {
+    class_alias('\PHPUnit_Framework_AssertionFailedError', 'PHPUnit\Framework\AssertionFailedError');
+}
+
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
+use PHPUnit\Framework\AssertionFailedError;
 
 class WebTestCaseTest extends WebTestCase
 {
     /** @var \Symfony\Bundle\FrameworkBundle\Client client */
     private $client = null;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = static::makeClient();
     }
@@ -46,10 +53,10 @@ class WebTestCaseTest extends WebTestCase
     {
         $path = $this->getUrl(
             'liipfunctionaltestbundle_user',
-            array(
+            [
                 'userId' => 1,
                 'get_parameter' => 'abc',
-            )
+            ]
         );
 
         $this->assertInternalType('string', $path);
@@ -90,7 +97,7 @@ class WebTestCaseTest extends WebTestCase
      */
     public function testIndexAssertStatusCode()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/';
 
@@ -108,7 +115,7 @@ class WebTestCaseTest extends WebTestCase
             $this->markTestSkipped('The Symfony\Component\Validator\Validator\ValidatorInterface does not exist');
         }
 
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/';
 
@@ -116,7 +123,7 @@ class WebTestCaseTest extends WebTestCase
 
         try {
             $this->assertStatusCode(-1, $this->client);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $this->assertStringStartsWith(
                 'HTTP/1.1 200 OK',
                 $e->getMessage()
@@ -138,7 +145,7 @@ class WebTestCaseTest extends WebTestCase
      */
     public function testAssertStatusCodeException()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/user/2';
 
@@ -146,7 +153,7 @@ class WebTestCaseTest extends WebTestCase
 
         try {
             $this->assertStatusCode(-1, $this->client);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $string = <<<'EOF'
 No user found
 Failed asserting that 404 matches expected -1.
@@ -164,7 +171,7 @@ EOF;
      */
     public function testIndexIsSuccesful()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/';
 
@@ -178,7 +185,7 @@ EOF;
      */
     public function testIndexFetchCrawler()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/';
 
@@ -208,7 +215,7 @@ EOF;
      */
     public function testIndexFetchContent()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/';
 
@@ -224,7 +231,7 @@ EOF;
 
     public function test404Error()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/missing_page';
 
@@ -241,11 +248,11 @@ EOF;
      */
     public function testIsSuccessfulException()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $response = $this->getMockBuilder('Symfony\Component\HttpFoundation\Response')
             ->disableOriginalConstructor()
-            ->setMethods(array('getContent'))
+            ->setMethods(['getContent'])
             ->getMock();
 
         $response->expects($this->any())
@@ -254,7 +261,7 @@ EOF;
 
         try {
             $this->isSuccessful($response);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $string = <<<'EOF'
 The Response was not successful: foo
 Failed asserting that false is true.
@@ -272,7 +279,7 @@ EOF;
      */
     public function testLoadEmptyFixtures()
     {
-        $fixtures = $this->loadFixtures(array());
+        $fixtures = $this->loadFixtures([]);
 
         $this->assertInstanceOf(
             'Doctrine\Common\DataFixtures\Executor\ORMExecutor',
@@ -282,9 +289,9 @@ EOF;
 
     public function testLoadFixtures()
     {
-        $fixtures = $this->loadFixtures(array(
+        $fixtures = $this->loadFixtures([
             'Liip\FunctionalTestBundle\Tests\App\DataFixtures\ORM\LoadUserData',
-        ));
+        ]);
 
         $this->assertInstanceOf(
             'Doctrine\Common\DataFixtures\Executor\ORMExecutor',
@@ -321,9 +328,9 @@ EOF;
 
         /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
         $user = $em->getRepository('LiipFunctionalTestBundle:User')
-            ->findOneBy(array(
+            ->findOneBy([
                 'id' => 1,
-            ));
+            ]);
 
         $this->assertSame(
             'foo@bar.com',
@@ -340,9 +347,9 @@ EOF;
      */
     public function testLoadDependentFixtures()
     {
-        $fixtures = $this->loadFixtures(array(
+        $fixtures = $this->loadFixtures([
             'Liip\FunctionalTestBundle\Tests\App\DataFixtures\ORM\LoadDependentUserData',
-        ));
+        ]);
 
         $this->assertInstanceOf(
             'Doctrine\Common\DataFixtures\Executor\ORMExecutor',
@@ -367,9 +374,9 @@ EOF;
      */
     public function testLoadFixturesFiles()
     {
-        $fixtures = $this->loadFixtureFiles(array(
+        $fixtures = $this->loadFixtureFiles([
             '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml',
-        ));
+        ]);
 
         $this->assertInternalType(
             'array',
@@ -395,18 +402,18 @@ EOF;
 
         /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
         $user = $em->getRepository('LiipFunctionalTestBundle:User')
-            ->findOneBy(array(
+            ->findOneBy([
                 'id' => 1,
-            ));
+            ]);
 
         $this->assertTrue(
             $user->getEnabled()
         );
 
         $user = $em->getRepository('LiipFunctionalTestBundle:User')
-            ->findOneBy(array(
+            ->findOneBy([
                 'id' => 10,
-            ));
+            ]);
 
         $this->assertTrue(
             $user->getEnabled()
@@ -414,15 +421,56 @@ EOF;
     }
 
     /**
+     * Load nonexistent resource.
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testLoadNonexistentFixturesFiles()
+    {
+        $this->loadFixtureFiles([
+            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/nonexistent.yml',
+        ]);
+    }
+
+    /**
+     * Use nelmio/alice with PURGE_MODE_TRUNCATE.
+     *
+     * @depends testLoadFixturesFiles
+     */
+    public function testLoadFixturesFilesWithPurgeModeTruncate()
+    {
+        $fixtures = $this->loadFixtureFiles([
+            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml',
+        ], true, null, 'doctrine', ORMPurger::PURGE_MODE_TRUNCATE);
+
+        $this->assertInternalType(
+            'array',
+            $fixtures
+        );
+
+        // 10 users are loaded
+        $this->assertCount(
+            10,
+            $fixtures
+        );
+
+        $id = 1;
+        /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
+        foreach ($fixtures as $user) {
+            $this->assertSame($id++, $user->getId());
+        }
+    }
+
+    /**
      * Use nelmio/alice with full path to the file.
      */
     public function testLoadFixturesFilesPaths()
     {
-        $fixtures = $this->loadFixtureFiles(array(
+        $fixtures = $this->loadFixtureFiles([
             $this->client->getContainer()->get('kernel')->locateResource(
                 '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml'
             ),
-        ));
+        ]);
 
         $this->assertInternalType(
             'array',
@@ -454,20 +502,63 @@ EOF;
 
         /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
         $user = $em->getRepository('LiipFunctionalTestBundle:User')
-            ->findOneBy(array(
+            ->findOneBy([
                 'id' => 1,
-            ));
+            ]);
 
         $this->assertTrue(
             $user->getEnabled()
         );
     }
 
+    /**
+     * Use nelmio/alice with full path to the file without calling locateResource().
+     */
+    public function testLoadFixturesFilesPathsWithoutLocateResource()
+    {
+        $fixtures = $this->loadFixtureFiles([
+            __DIR__.'/../App/DataFixtures/ORM/user.yml',
+        ]);
+
+        $this->assertInternalType(
+            'array',
+            $fixtures
+        );
+
+        // 10 users are loaded
+        $this->assertCount(
+            10,
+            $fixtures
+        );
+
+        $em = $this->client->getContainer()
+            ->get('doctrine.orm.entity_manager');
+
+        $users = $em->getRepository('LiipFunctionalTestBundle:User')
+            ->findAll();
+
+        $this->assertSame(
+            10,
+            count($users)
+        );
+    }
+
+    /**
+     * Load nonexistent file with full path.
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testLoadNonexistentFixturesFilesPaths()
+    {
+        $path = ['/nonexistent.yml'];
+        $this->loadFixtureFiles($path);
+    }
+
     public function testUserWithFixtures()
     {
-        $fixtures = $this->loadFixtures(array(
+        $fixtures = $this->loadFixtures([
             'Liip\FunctionalTestBundle\Tests\App\DataFixtures\ORM\LoadUserData',
-        ));
+        ]);
 
         $this->assertInstanceOf(
             'Doctrine\Common\DataFixtures\Executor\ORMExecutor',
@@ -485,7 +576,7 @@ EOF;
 
         if ($profile = $this->client->getProfile()) {
             // One query
-            $this->assertEquals(1,
+            $this->assertSame(1,
                 $profile->getCollector('db')->getQueryCount());
         } else {
             $this->markTestIncomplete(
@@ -525,7 +616,7 @@ EOF;
             $this->markTestSkipped('The Symfony\Component\Validator\Validator\ValidatorInterface does not exist');
         }
 
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/form';
 
@@ -538,11 +629,11 @@ EOF;
 
         $this->assertStatusCode(200, $this->client);
 
-        $this->assertValidationErrors(array('children[name].data'), $this->client->getContainer());
+        $this->assertValidationErrors(['children[name].data'], $this->client->getContainer());
 
         // Try again with the fields filled out.
         $form = $crawler->selectButton('Submit')->form();
-        $form->setValues(array('form[name]' => 'foo bar'));
+        $form->setValues(['form[name]' => 'foo bar']);
         $crawler = $this->client->submit($form);
 
         $this->assertStatusCode(200, $this->client);
@@ -556,7 +647,7 @@ EOF;
     /**
      * @depends testForm
      *
-     * @expectedException \PHPUnit_Framework_ExpectationFailedException
+     * @expectedException \PHPUnit\Framework\ExpectationFailedException
      */
     public function testFormWithException()
     {
@@ -564,7 +655,7 @@ EOF;
             $this->markTestSkipped('The Symfony\Component\Validator\Validator\ValidatorInterface does not exist');
         }
 
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/form';
 
@@ -577,7 +668,7 @@ EOF;
 
         $this->assertStatusCode(200, $this->client);
 
-        $this->assertValidationErrors(array(''), $this->client->getContainer());
+        $this->assertValidationErrors([''], $this->client->getContainer());
     }
 
     /**
@@ -590,7 +681,7 @@ EOF;
             $this->markTestSkipped('The Symfony\Component\Validator\Validator\ValidatorInterface does not exist');
         }
 
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $path = '/form';
 
@@ -602,7 +693,7 @@ EOF;
 
         try {
             $this->assertStatusCode(-1, $this->client);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $string = <<<'EOF'
 Unexpected validation errors:
 + children[name].data: This value should not be blank.
@@ -622,7 +713,7 @@ EOF;
      */
     public function testJsonIsSuccesful()
     {
-        $this->loadFixtures(array());
+        $this->loadFixtures([]);
 
         $this->client = static::makeClient();
 
@@ -637,7 +728,7 @@ EOF;
         );
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 

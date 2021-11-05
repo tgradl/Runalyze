@@ -12,18 +12,17 @@
 namespace Snc\RedisBundle\DependencyInjection;
 
 use Snc\RedisBundle\DependencyInjection\Configuration\Configuration;
+use Snc\RedisBundle\DependencyInjection\Configuration\RedisDsn;
+use Snc\RedisBundle\DependencyInjection\Configuration\RedisEnvDsn;
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * SncRedisExtension
- */
 class SncRedisExtension extends Extension
 {
     /**
@@ -98,6 +97,27 @@ class SncRedisExtension extends Extension
      */
     protected function loadClient(array $client, ContainerBuilder $container)
     {
+        $dsnResolver = function ($dsn) use ($container) {
+            $usedEnvs = null;
+            if (method_exists($container, 'resolveEnvPlaceholders')) {
+                $container->resolveEnvPlaceholders($dsn, null, $usedEnvs);
+            }
+
+            if ($usedEnvs) {
+                return new RedisEnvDsn($dsn);
+            }
+
+            $parsedDsn = new RedisDsn($dsn);
+
+            if ($parsedDsn->isValid()) {
+                return $parsedDsn;
+            }
+
+            throw new \InvalidArgumentException(sprintf('Given Redis DSN "%s" is invalid.', $dsn));
+        };
+
+        $client['dsns'] = array_map($dsnResolver, $client['dsns']);
+
         switch ($client['type']) {
             case 'predis':
                 $this->loadPredisClient($client, $container);
@@ -118,6 +138,17 @@ class SncRedisExtension extends Extension
     {
         if (null === $client['options']['cluster']) {
             unset($client['options']['cluster']);
+        } else {
+            unset($client['options']['replication']);
+        }
+
+        if (isset($client['options']['replication']) && false === $client['options']['replication']) {
+            @trigger_error(
+                'Option "replication" with value "false" is deprecated since 2.1.9, to be removed in 3.0. Please choose a valid value or remove this option.',
+                E_USER_DEPRECATED
+            );
+
+            unset($client['options']['replication']);
         }
 
         // predis connection parameters have been renamed in v0.8
@@ -132,37 +163,30 @@ class SncRedisExtension extends Extension
 
         $connectionAliases = array();
         $connectionCount = count($client['dsns']);
+
+        /** @var RedisDsn $dsn */
         foreach ($client['dsns'] as $i => $dsn) {
-            /** @var \Snc\RedisBundle\DependencyInjection\Configuration\RedisDsn $dsn */
-            if (!$connectionAlias = $dsn->getAlias()) {
+            $connectionAlias = $dsn instanceof RedisDsn ? $dsn->getAlias() : null;
+            if (!$connectionAlias) {
                 $connectionAlias = 1 === $connectionCount ? $client['alias'] : $client['alias'] . ($i + 1);
             }
             $connectionAliases[] = $connectionAlias;
+
             $connection = $client['options'];
             $connection['logging'] = $client['logging'];
             $connection['alias'] = $connectionAlias;
-            if (null !== $dsn->getSocket()) {
-                $connection['scheme'] = 'unix';
-                $connection['path'] = $dsn->getSocket();
-            } else {
-                $connection['scheme'] = 'tcp';
-                $connection['host'] = $dsn->getHost();
-                $connection['port'] = $dsn->getPort();
-                if (null !== $dsn->getDatabase()) {
-                    $connection['path'] = $dsn->getDatabase();
-                }
-            }
-            if (null !== $dsn->getDatabase()) {
-                $connection['database'] = $dsn->getDatabase();
-            }
-            $connection['password'] = $dsn->getPassword();
-            $connection['weight'] = $dsn->getWeight();
-            $this->loadPredisConnectionParameters($client['alias'], $connection, $container);
+
+            $this->loadPredisConnectionParameters($client['alias'], $connection, $container, $dsn);
         }
 
+        $profile = $client['options']['profile'];
         // TODO can be shared between clients?!
+        if (method_exists($container, 'resolveEnvPlaceholders')) {
+            $profile = $container->resolveEnvPlaceholders($profile, true);
+        }
+        $profile = !is_string($profile) ? sprintf('%.1F', $profile) : $profile;
         $profileId = sprintf('snc_redis.client.%s_profile', $client['alias']);
-        $profileDef = new Definition(get_class(\Predis\Profile\Factory::get($client['options']['profile']))); // TODO get_class alternative?
+        $profileDef = new Definition(get_class(\Predis\Profile\Factory::get($profile))); // TODO get_class alternative?
         $profileDef->setPublic(false);
         if (null !== $client['options']['prefix']) {
             $processorId = sprintf('snc_redis.client.%s_processor', $client['alias']);
@@ -180,8 +204,9 @@ class SncRedisExtension extends Extension
         $optionDef->addArgument($client['options']);
         $container->setDefinition($optionId, $optionDef);
         $clientDef = new Definition($container->getParameter('snc_redis.client.class'));
+        $clientDef->setPublic(true);
         $clientDef->addTag('snc_redis.client', array('alias' => $client['alias']));
-        if (1 === $connectionCount) {
+        if (1 === $connectionCount && !isset($client['options']['cluster']) && !isset($client['options']['replication'])) {
             $clientDef->addArgument(new Reference(sprintf('snc_redis.connection.%s_parameters.%s', $connectionAliases[0], $client['alias'])));
         } else {
             $connections = array();
@@ -190,24 +215,34 @@ class SncRedisExtension extends Extension
             }
             $clientDef->addArgument($connections);
         }
+
+        $clientDefId = sprintf('snc_redis.%s', $client['alias']);
+        $clientAliasId = sprintf('snc_redis.%s_client', $client['alias']);
+
         $clientDef->addArgument(new Reference($optionId));
-        $container->setDefinition(sprintf('snc_redis.%s', $client['alias']), $clientDef);
-        $container->setAlias(sprintf('snc_redis.%s_client', $client['alias']), sprintf('snc_redis.%s', $client['alias']));
+        $container->setDefinition($clientDefId, $clientDef);
+        $container->setAlias($clientAliasId, $clientDefId);
     }
 
     /**
      * Loads a connection.
      *
-     * @param string           $clientAlias The client alias
-     * @param array            $connection  A connection configuration
-     * @param ContainerBuilder $container   A ContainerBuilder instance
+     * @param string               $clientAlias The client alias
+     * @param array                $connection  A connection configuration
+     * @param ContainerBuilder     $container   A ContainerBuilder instance
+     * @param RedisEnvDsn|RedisDsn $dsn         DSN object
      */
-    protected function loadPredisConnectionParameters($clientAlias, array $connection, ContainerBuilder $container)
+    protected function loadPredisConnectionParameters($clientAlias, array $connection, ContainerBuilder $container, $dsn)
     {
+        $parametersClass = $container->getParameter('snc_redis.connection_parameters.class');
         $parameterId = sprintf('snc_redis.connection.%s_parameters.%s', $connection['alias'], $clientAlias);
-        $parameterDef = new Definition($container->getParameter('snc_redis.connection_parameters.class'));
+
+        $parameterDef = new Definition($parametersClass);
         $parameterDef->setPublic(false);
+        $parameterDef->setFactory(array('Snc\RedisBundle\Factory\PredisParametersFactory', 'create'));
         $parameterDef->addArgument($connection);
+        $parameterDef->addArgument($parametersClass);
+        $parameterDef->addArgument((string) $dsn);
         $parameterDef->addTag('snc_redis.connection_parameters', array('clientAlias' => $clientAlias));
         $container->setDefinition($parameterId, $parameterDef);
     }
@@ -228,51 +263,53 @@ class SncRedisExtension extends Extension
             throw new \RuntimeException('Support for RedisArray is not yet implemented.');
         }
 
-        $dsn = $client['dsns'][0]; /** @var \Snc\RedisBundle\DependencyInjection\Configuration\RedisDsn $dsn */
-        $phpredisId = sprintf('snc_redis.phpredis.%s', $client['alias']);
+        /** @var \Snc\RedisBundle\DependencyInjection\Configuration\RedisDsn $dsn */
+        $dsn = $client['dsns'][0];
 
-        $phpredisDef = new Definition($container->getParameter('snc_redis.phpredis_client.class'));
-        if ($client['logging']) {
-            $phpredisDef = new Definition($container->getParameter('snc_redis.phpredis_connection_wrapper.class'));
-            $phpredisDef->addArgument(array('alias' => $client['alias']));
-            $phpredisDef->addArgument(new Reference('snc_redis.logger'));
+        $phpRedisVersion = phpversion('redis');
+        if (version_compare($phpRedisVersion, '4.0.0') >= 0 && $client['logging']) {
+            $client['logging'] = false;
+            @trigger_error(sprintf('Redis logging is not supported on PhpRedis %s and has been automatically disabled, disable logging in config to suppress this warning', $phpRedisVersion), E_USER_WARNING);
         }
 
+        $phpredisClientclass = $container->getParameter('snc_redis.phpredis_client.class');
+        if ($client['logging']) {
+            $phpredisClientclass = $container->getParameter('snc_redis.phpredis_connection_wrapper.class');
+        }
+        $phpredisDef = new Definition($phpredisClientclass);
+        $phpredisDef->setFactory(array(
+            new Definition('Snc\RedisBundle\Factory\PhpredisClientFactory', array(new Reference('snc_redis.logger'))),
+            'create'
+        ));
+        $phpredisDef->addArgument($phpredisClientclass);
+        $phpredisDef->addArgument((string) $dsn);
+        $phpredisDef->addArgument($client['options']);
+        $phpredisDef->addArgument($client['alias']);
         $phpredisDef->addTag('snc_redis.client', array('alias' => $client['alias']));
         $phpredisDef->setPublic(false);
-        $connectMethod = $client['options']['connection_persistent'] ? 'pconnect' : 'connect';
-        $connectParameters = array();
-        if (null !== $dsn->getSocket()) {
-            $connectParameters[] = $dsn->getSocket();
-            $connectParameters[] = null;
-        } else {
-            $connectParameters[] = $dsn->getHost();
-            $connectParameters[] = $dsn->getPort();
-        }
-        if ($client['options']['connection_timeout']) {
-            $connectParameters[] = $client['options']['connection_timeout'];
-        }
-        else {
-            $connectParameters[] = null;
-        }
-        if($client['options']['connection_persistent']) {
-            $connectParameters[] = $dsn->getPersistentId();
+        
+        // Older version of phpredis extension do not support lazy loading
+        $minimumVersionForLazyLoading = '4.1.1';
+        $supportsLazyServices = version_compare($phpRedisVersion, $minimumVersionForLazyLoading, '>=');
+        $phpredisDef->setLazy($supportsLazyServices);
+        if (!$supportsLazyServices) {
+            @trigger_error(
+                sprintf('Lazy loading Redis is not supported on PhpRedis %s. Please update to PhpRedis %s or higher.', $phpRedisVersion, $minimumVersionForLazyLoading), 
+                E_USER_WARNING
+            );    
         }
 
-        $phpredisDef->addMethodCall($connectMethod, $connectParameters);
-        if ($client['options']['prefix']) {
-            $phpredisDef->addMethodCall('setOption', array(\Redis::OPT_PREFIX, $client['options']['prefix']));
-        }
-        if (null !== $dsn->getPassword()) {
-            $phpredisDef->addMethodCall('auth', array($dsn->getPassword()));
-        }
-        if (null !== $dsn->getDatabase()) {
-            $phpredisDef->addMethodCall('select', array($dsn->getDatabase()));
-        }
+        $phpredisId = sprintf('snc_redis.phpredis.%s', $client['alias']);
+        $phpredisAliasId = sprintf('snc_redis.%s_client', $client['alias']);
+        $phpredisAliasId2 = sprintf('snc_redis.%s', $client['alias']);
+
         $container->setDefinition($phpredisId, $phpredisDef);
+        $container->setAlias($phpredisAliasId2, new Alias($phpredisId, true));
+        $alias = $container->setAlias($phpredisAliasId, $phpredisId);
 
-        $container->setAlias(sprintf('snc_redis.%s', $client['alias']), $phpredisId);
-        $container->setAlias(sprintf('snc_redis.%s_client', $client['alias']), $phpredisId);
+        if (method_exists($alias, 'setDeprecated')) {
+            $alias->setDeprecated(true, '"%alias_id%" service is deprecated since 2.1.10, to be removed in 3.0. Please use "'.$phpredisAliasId2.'" instead.');
+        }
     }
 
     /**
@@ -292,11 +329,8 @@ class SncRedisExtension extends Extension
         $container->setParameter('snc_redis.session.spin_lock_wait', $config['session']['spin_lock_wait']);
 
         $client = $container->getParameter('snc_redis.session.client');
-        $prefix = $container->getParameter('snc_redis.session.prefix');
-        $locking = $container->getParameter('snc_redis.session.locking');
-        $spinLockWait = $container->getParameter('snc_redis.session.spin_lock_wait');
 
-        $client = sprintf('snc_redis.%s_client', $client);
+        $client = sprintf('snc_redis.%s', $client);
 
         $container->setAlias('snc_redis.session.client', $client);
 
@@ -344,7 +378,7 @@ class SncRedisExtension extends Extension
                     break;
             }
 
-            $client = new Reference(sprintf('snc_redis.%s_client', $cache['client']));
+            $client = new Reference(sprintf('snc_redis.%s', $cache['client']));
             foreach ($cache['entity_managers'] as $em) {
                 $def = call_user_func_array($definitionFunction, array($client, $cache));
                 $container->setDefinition(sprintf('doctrine.orm.%s_%s', $em, $name), $def);
@@ -398,8 +432,7 @@ class SncRedisExtension extends Extension
         $container->setAlias('swiftmailer.spool.redis', 'snc_redis.swiftmailer.spool');
     }
 
-    /**
-     * Loads the profiler storage configuration.
+     /* Loads the profiler storage configuration.
      *
      * @param array            $config    A configuration array
      * @param ContainerBuilder $container A ContainerBuilder instance
@@ -413,7 +446,7 @@ class SncRedisExtension extends Extension
         $container->setParameter('snc_redis.profiler_storage.ttl', $config['profiler_storage']['ttl']);
 
         $client = $container->getParameter('snc_redis.profiler_storage.client');
-        $client = sprintf('snc_redis.%s_client', $client);
+        $client = sprintf('snc_redis.%s', $client);
         $container->setAlias('snc_redis.profiler_storage.client', $client);
     }
 

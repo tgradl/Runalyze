@@ -5,7 +5,7 @@ namespace Bernard\BernardBundle\Tests\DependencyInjection;
 use Bernard\BernardBundle\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\Processor;
 
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends \PHPUnit\Framework\TestCase
 {
     public function testDefaults()
     {
@@ -26,7 +26,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([
             'prefetch'                           => null,
             'connection'                         => 'default',
-            'directory'                          => null,
+            'directory'                          => '%kernel.cache_dir%/bernard',
             'phpamqp_service'                    => 'old_sound_rabbit_mq.connection.default',
             'phpamqp_exchange'                   => null,
             'phpamqp_default_message_parameters' => [],
@@ -64,15 +64,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     public function testPhpAmqpDriverRequiresExchangeOptionToBeSet()
     {
         $this->processConfig(['driver' => 'phpamqp']);
-    }
-
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The "directory" option must be defined when using the "file" driver.
-     */
-    public function testFileDriverRequiresDirectoryOptionToBeSet()
-    {
-        $this->processConfig(['driver' => 'file']);
     }
 
     /**

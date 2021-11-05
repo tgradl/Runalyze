@@ -3,12 +3,12 @@
 namespace Liip\FunctionalTestBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
 
 /**
  * Command used to update the project.
@@ -16,8 +16,11 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 class RunParatestCommand extends ContainerAwareCommand
 {
     private $output;
+
     private $process;
+
     private $testDbPath;
+
     private $phpunit;
 
     /**
@@ -46,15 +49,15 @@ class RunParatestCommand extends ContainerAwareCommand
         $cleanProcess->run();
         $this->output->writeln("Creating Schema in $this->testDbPath ...");
         $application = new Application($this->getContainer()->get('kernel'));
-        $input = new ArrayInput(array('doctrine:schema:create', '--env' => 'test'));
+        $input = new ArrayInput(['doctrine:schema:create', '--env' => 'test']);
         $application->run($input, $this->output);
 
         $this->output->writeln('Initial schema created');
-        $input = new ArrayInput(array(
+        $input = new ArrayInput([
             'doctrine:fixtures:load',
             '-n' => '',
             '--env' => 'test',
-        ));
+        ]);
         $application->run($input, $this->output);
 
         $this->output->writeln('Initial schema populated, duplicating....');
@@ -74,7 +77,7 @@ class RunParatestCommand extends ContainerAwareCommand
     {
         $this->output = $output;
         $this->prepare();
-        if (is_file('vendor/bin/paratest') !== true) {
+        if (true !== is_file('vendor/bin/paratest')) {
             $this->output->writeln('Error : Install paratest first');
         } else {
             $this->output->writeln('Done...Running test.');

@@ -125,9 +125,8 @@ Example:
 Things to note:
 
 
--  The @InheritanceType, @DiscriminatorColumn and @DiscriminatorMap
-   must be specified on the topmost class that is part of the mapped
-   entity hierarchy.
+-  The @InheritanceType and @DiscriminatorColumn must be specified 
+   on the topmost class that is part of the mapped entity hierarchy.
 -  The @DiscriminatorMap specifies which values of the
    discriminator column identify a row as being of a certain type. In
    the case above a value of "person" identifies a row as being of
@@ -160,7 +159,7 @@ This strategy is very efficient for querying across all types in
 the hierarchy or for specific types. No table joins are required,
 only a WHERE clause listing the type identifiers. In particular,
 relationships involving types that employ this mapping strategy are
-very performant.
+very performing.
 
 There is a general performance consideration with Single Table
 Inheritance: If the target-entity of a many-to-one or one-to-one 
@@ -175,7 +174,7 @@ SQL Schema considerations
 For Single-Table-Inheritance to work in scenarios where you are
 using either a legacy database schema or a self-written database
 schema you have to make sure that all columns that are not in the
-root entity but in any of the different sub-entities has to allows
+root entity but in any of the different sub-entities has to allow
 null values. Columns that have NOT NULL constraints have to be on
 the root entity of the single-table inheritance hierarchy.
 
@@ -290,9 +289,15 @@ column and cascading on delete.
 
 Overrides
 ---------
-Used to override a mapping for an entity field or relationship.
-May be applied to an entity that extends a mapped superclass
-to override a relationship or field mapping defined by the mapped superclass.
+
+Used to override a mapping for an entity field or relationship.  Can only be
+applied to an entity that extends a mapped superclass or uses a trait to
+override a relationship or field mapping defined by the mapped superclass or
+trait.
+
+It is not possible to override attributes or associations in entity to entity
+inheritance scenarios, because this can cause unforseen edge case behavior and
+increases complexity in ORM internal classes.
 
 
 Association Override
@@ -455,6 +460,8 @@ Things to note:
 -  This feature is available for all kind of associations. (OneToOne, OneToMany, ManyToOne, ManyToMany)
 -  The association type *CANNOT* be changed.
 -  The override could redefine the joinTables or joinColumns depending on the association type.
+-  The override could redefine inversedBy to reference more than one extended entity.
+-  The override could redefine fetch to modify the fetch strategy of the extended entity.
 
 Attribute Override
 ~~~~~~~~~~~~~~~~~~~~
@@ -492,7 +499,7 @@ Could be used by an entity that extends a mapped superclass to override a field 
          *          column=@Column(
          *              name     = "guest_id",
          *              type     = "integer",
-                        length   = 140
+         *              length   = 140
          *          )
          *      ),
          *      @AttributeOverride(name="name",
@@ -500,7 +507,7 @@ Could be used by an entity that extends a mapped superclass to override a field 
          *              name     = "guest_name",
          *              nullable = false,
          *              unique   = true,
-                        length   = 240
+         *              length   = 240
          *          )
          *      )
          * })
@@ -583,7 +590,7 @@ Things to note:
 
 -  The "attribute override" specifies the overrides base on the property name.
 -  The column type *CANNOT* be changed. If the column type is not equal you get a ``MappingException``
--  The override can redefine all the columns except the type.
+-  The override can redefine all the attributes except the type.
 
 Query the Type
 --------------

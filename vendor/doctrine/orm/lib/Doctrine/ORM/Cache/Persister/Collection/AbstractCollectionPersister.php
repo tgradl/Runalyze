@@ -32,6 +32,7 @@ use Doctrine\Common\Util\ClassUtils;
 
 /**
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
+ * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @since 2.5
  */
 abstract class AbstractCollectionPersister implements CachedCollectionPersister
@@ -69,7 +70,7 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
      /**
      * @var array
      */
-    protected $queuedCache = array();
+    protected $queuedCache = [];
 
     /**
      * @var \Doctrine\ORM\Cache\Region
@@ -143,7 +144,7 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
      * @param \Doctrine\ORM\PersistentCollection     $collection
      * @param \Doctrine\ORM\Cache\CollectionCacheKey $key
      *
-     * @return \Doctrine\ORM\PersistentCollection|null
+     * @return object[]|null
      */
     public function loadCollectionCache(PersistentCollection $collection, CollectionCacheKey $key)
     {
@@ -164,10 +165,18 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
     public function storeCollectionCache(CollectionCacheKey $key, $elements)
     {
         /* @var $targetPersister CachedEntityPersister */
+        $associationMapping = $this->sourceEntity->associationMappings[$key->association];
         $targetPersister    = $this->uow->getEntityPersister($this->targetEntity->rootEntityName);
         $targetRegion       = $targetPersister->getCacheRegion();
         $targetHydrator     = $targetPersister->getEntityHydrator();
-        $entry              = $this->hydrator->buildCacheEntry($this->targetEntity, $key, $elements);
+
+        // Only preserve ordering if association configured it
+        if ( ! (isset($associationMapping['indexBy']) && $associationMapping['indexBy'])) {
+            // Elements may be an array or a Collection
+            $elements = array_values(is_array($elements) ? $elements : $elements->getValues());
+        }
+
+        $entry = $this->hydrator->buildCacheEntry($this->targetEntity, $key, $elements);
 
         foreach ($entry->identifiers as $index => $entityKey) {
             if ($targetRegion->contains($entityKey)) {
@@ -232,20 +241,6 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
     public function get(PersistentCollection $collection, $index)
     {
         return $this->persister->get($collection, $index);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeElement(PersistentCollection $collection, $element)
-    {
-        if ($persisterResult = $this->persister->removeElement($collection, $element)) {
-            $this->evictCollectionCache($collection);
-            $this->evictElementCache($this->sourceEntity->rootEntityName, $collection->getOwner());
-            $this->evictElementCache($this->targetEntity->rootEntityName, $element);
-        }
-
-        return $persisterResult;
     }
 
     /**

@@ -1,6 +1,6 @@
 # Doctrine Data Fixtures Extension
 
-[![Build Status](https://travis-ci.org/doctrine/data-fixtures.png)](https://travis-ci.org/doctrine/data-fixtures)
+[![Build Status](https://github.com/doctrine/data-fixtures/workflows/Continuous%20Integration/badge.svg)](https://github.com/doctrine/data-fixtures/actions)
 
 This extension aims to provide a simple way to manage and execute the loading of data fixtures
 for the [Doctrine ORM or ODM](http://www.doctrine-project.org/). You can write fixture classes
@@ -9,10 +9,10 @@ by implementing the [`Doctrine\Common\DataFixtures\FixtureInterface`](lib/Doctri
 ```php
 namespace MyDataFixtures;
 
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Persistence\ObjectManager;
 
-class UserFixtureLoader implements FixtureInterface
+class UserDataLoader implements FixtureInterface
 {
     public function load(ObjectManager $manager)
     {
@@ -30,10 +30,10 @@ Now you can begin adding the fixtures to a loader instance:
 
 ```php
 use Doctrine\Common\DataFixtures\Loader;
-use MyDataFixtures\LoadUserData;
+use MyDataFixtures\UserDataLoader;
 
 $loader = new Loader();
-$loader->addFixture(new LoadUserData());
+$loader->addFixture(new UserDataLoader());
 ```
 
 You can load a set of fixtures from a directory as well:
@@ -44,7 +44,9 @@ $loader->loadFromDirectory('/path/to/MyDataFixtures');
 
 Or you can load a set of fixtures from a file:
 
-    $loader->loadFromFile('/path/to/MyDataFixtures/MyFixture1.php');
+```php
+$loader->loadFromFile('/path/to/MyDataFixtures/MyFixture1.php');
+```
 
 You can get the added fixtures using the getFixtures() method:
 
@@ -80,9 +82,9 @@ a relation. Here is an example fixtures for **Role** and **User** relation
 namespace MyDataFixtures;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
-class LoadUserRoleData extends AbstractFixture
+class UserRoleDataLoader extends AbstractFixture
 {
     public function load(ObjectManager $manager)
     {
@@ -108,9 +110,9 @@ And the **User** data loading fixture:
 namespace MyDataFixtures;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
-class LoadUserData extends AbstractFixture
+class UserDataLoader extends AbstractFixture
 {
     public function load(ObjectManager $manager)
     {
@@ -143,7 +145,7 @@ namespace MyDataFixtures;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class MyFixture extends AbstractFixture implements OrderedFixtureInterface
 {
@@ -166,7 +168,7 @@ namespace MyDataFixtures;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class MyFixture extends AbstractFixture implements DependentFixtureInterface
 {
@@ -190,10 +192,10 @@ class MyOtherFixture extends AbstractFixture
 
 ## Running the tests:
 
-PHPUnit 3.5 or newer together with Mock_Object package is required.
+Phpunit is included in the dev requirements of this package.
+
 To setup and run tests follow these steps:
 
 - go to the root directory of data-fixtures
 - run: **composer install --dev**
-- copy the phpunit config **cp phpunit.xml.dist phpunit.xml**
-- run: **phpunit**
+- run: **vendor/bin/phpunit**

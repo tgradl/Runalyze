@@ -1,4 +1,6 @@
 [![Build status][Travis Master image]][Travis Master]
+[![Latest Stable Version](https://poser.pugx.org/liip/functional-test-bundle/v/stable)](https://packagist.org/packages/liip/functional-test-bundle)
+[![Latest Unstable Version](https://poser.pugx.org/liip/functional-test-bundle/v/unstable)](https://packagist.org/packages/liip/functional-test-bundle)
 [![Scrutinizer Code Quality][Scrutinizer image]
 ![Scrutinizer][Scrutinizer Coverage Image]][Scrutinizer]
 [![SensioLabsInsight][SensioLabsInsight Image]][SensioLabsInsight]
@@ -23,6 +25,24 @@ This Bundle provides base classes for functional tests to assist in setting up
 test-databases, loading fixtures and HTML5 validation.  It also provides a DI
 aware mock builder for unit tests.
 
+Versions
+--------
+
+We are currently working on the `2.x` release.
+
+If you are using PHPUnit 7 or later, or Symfony 4, you MUST require version
+2.0 of this bundle:
+
+```bash
+$ composer require --dev liip/functional-test-bundle:~2.0@alpha
+```
+
+Please see the [documentation for 2.0](https://github.com/liip/LiipFunctionalTestBundle/blob/2.x/README.md) and  [upgrade guide for 2.0](https://github.com/liip/LiipFunctionalTestBundle/blob/2.x/UPGRADE-2.0.md)
+
+The `1.x` or `master` branch is in maintenance mode, bug fixes will be accepted but
+new features or refactorings will be refused. 
+
+
 Installation
 ------------
 
@@ -32,7 +52,7 @@ Installation
     following command to download the latest stable version of this bundle:
 
     ```bash
-    $ composer require --dev liip/functional-test-bundle
+    $ composer require --dev liip/functional-test-bundle:~1.9.5
     ```
 
     This command requires you to have Composer installed globally, as explained
@@ -54,8 +74,11 @@ Installation
         public function registerBundles()
         {
             // ...
-            if (in_array($this->getEnvironment(), array('dev', 'test'))) {
-                $bundles[] = new Liip\FunctionalTestBundle\LiipFunctionalTestBundle();
+            if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
+                // ...
+                if ('test' === $this->getEnvironment()) {
+                    $bundles[] = new Liip\FunctionalTestBundle\LiipFunctionalTestBundle();
+                }
             }
 
             return $bundles;
@@ -71,7 +94,7 @@ Installation
     # app/config/config_test.yml
     liip_functional_test: ~
     ```
-    Ensure that the framework is using the filesystem for session storage:
+    Ensure that the framework sets the session name and is using the filesystem for session storage:
 
     ```yaml
     # app/config/config_test.yml
@@ -79,6 +102,7 @@ Installation
         test: ~
         session:
             storage_id: session.storage.mock_file
+            name: MOCKSESSION
     ```
 
 Basic usage
@@ -94,8 +118,6 @@ If it fails it will display the last exception message or validation errors
 encountered by the Client object.
 
 If you are expecting validation errors, test them with `assertValidationErrors`.
-
-Note: Both `assertStatusCode` and `assertValidationErrors` only works on Symfony 2.5+
 
 ```php
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -408,8 +430,39 @@ rather than the FunctionalTestBundle's load methods. You should be aware that th
 $fixtures = $this->loadFixtureFiles(array(
     '@AcmeBundle/DataFixtures/ORM/ObjectData.yml',
     '@AcmeBundle/DataFixtures/ORM/AnotherObjectData.yml',
-    '../../DataFixtures/ORM/YetAnotherObjectData.yml',
+    __DIR__.'/../../DataFixtures/ORM/YetAnotherObjectData.yml',
 ));
+```
+
+If you want to clear tables you have the following two ways:
+1. Only to remove records of tables;
+2. Truncate tables.
+
+The first way is consisted in using the second parameter `$append` with value `false`. It allows you **only** to remove all records of table. Values of auto increment won't be reset. 
+```php
+$fixtures = $this->loadFixtureFiles(
+    array(
+        '@AcmeBundle/DataFixtures/ORM/ObjectData.yml',
+        '@AcmeBundle/DataFixtures/ORM/AnotherObjectData.yml',
+        __DIR__.'/../../DataFixtures/ORM/YetAnotherObjectData.yml',
+    ),
+    false
+);
+```
+
+The second way is consisted in using the second parameter `$append` with value `false` and the last parameter `$purgeMode` with value `Doctrine\Common\DataFixtures\Purger\ORMPurger::PURGE_MODE_TRUNCATE`. It allows you to remove all records of tables with resetting value of auto increment.
+
+```php
+<?php
+
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+
+$files = array(
+     '@AcmeBundle/DataFixtures/ORM/ObjectData.yml',
+     '@AcmeBundle/DataFixtures/ORM/AnotherObjectData.yml',
+     __DIR__.'/../../DataFixtures/ORM/YetAnotherObjectData.yml',
+ );
+$fixtures = $this->loadFixtureFiles($files, false, null, 'doctrine', ORMPurger::PURGE_MODE_TRUNCATE );
 ```
 
 #### HautelookAliceBundle Faker Providers
@@ -458,7 +511,7 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
 
 class AccountControllerTest extends WebTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
         if (!isset($metadatas)) {
@@ -504,7 +557,7 @@ class LoadMemberAccounts extends AbstractFixture
 and then in the test case setup:
 ```php
 ...
-    public function setUp()
+    public function setUp(): void
     {
         $this->fixtures = $this->loadFixtures([
             'AppBundle\Tests\Fixtures\LoadMemberAccounts'
@@ -583,7 +636,7 @@ framework:
     session:
         # handler_id set to null will use default session handler from php.ini
         handler_id:  ~
-        storage_id: session.storage.filesystem
+        storage_id: session.storage.mock_file
         name: MOCKSESSID
 ```
 
@@ -802,7 +855,7 @@ Caveats
    `@IgnoreAnnotation` annotation:
 
    ```php
-  Liip\FunctionalTestBundle\Test\WebTestCase;
+   use Liip\FunctionalTestBundle\Test\WebTestCase;
 
    /**
     * @IgnoreAnnotation("dataProvider")

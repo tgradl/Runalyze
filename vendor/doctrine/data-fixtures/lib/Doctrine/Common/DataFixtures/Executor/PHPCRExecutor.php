@@ -1,54 +1,41 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
+
+declare(strict_types=1);
 
 namespace Doctrine\Common\DataFixtures\Executor;
 
-use Doctrine\ODM\PHPCR\DocumentManager;
 use Doctrine\Common\DataFixtures\Purger\PHPCRPurger;
+use Doctrine\ODM\PHPCR\DocumentManagerInterface;
+
+use function method_exists;
 
 /**
  * Class responsible for executing data fixtures.
- *
- * @author Jonathan H. Wage <jonwage@gmail.com>
- * @author Daniel Barsotti <daniel.barsotti@liip.ch>
  */
 class PHPCRExecutor extends AbstractExecutor
 {
+    /** @var DocumentManagerInterface */
+    private $dm;
+
     /**
-     * Construct new fixtures loader instance.
-     *
-     * @param DocumentManager $dm DocumentManager instance used for persistence.
+     * @param DocumentManagerInterface $dm     manager instance used for persisting the fixtures
+     * @param PHPCRPurger              $purger to remove the current data if append is false
      */
-    public function __construct(DocumentManager $dm, PHPCRPurger $purger = null)
+    public function __construct(DocumentManagerInterface $dm, ?PHPCRPurger $purger = null)
     {
-        $this->dm = $dm;
-        if ($purger !== null) {
-            $this->purger = $purger;
-            $this->purger->setDocumentManager($dm);
-        }
         parent::__construct($dm);
+
+        $this->dm = $dm;
+        if ($purger === null) {
+            return;
+        }
+
+        $purger->setDocumentManager($dm);
+        $this->setPurger($purger);
     }
 
     /**
-     * Retrieve the DocumentManager instance this executor instance is using.
-     *
-     * @return \Doctrine\ODM\PHPCR\DocumentManager
+     * @return DocumentManagerInterface
      */
     public function getObjectManager()
     {
@@ -60,7 +47,7 @@ class PHPCRExecutor extends AbstractExecutor
     {
         $that = $this;
 
-        $function = function ($dm) use ($append, $that, $fixtures) {
+        $function = static function ($dm) use ($append, $that, $fixtures) {
             if ($append === false) {
                 $that->purge();
             }
@@ -77,4 +64,3 @@ class PHPCRExecutor extends AbstractExecutor
         }
     }
 }
-

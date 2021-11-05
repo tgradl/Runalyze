@@ -65,9 +65,14 @@
             <tag name="bernard.normalizer" />
         </service>
 
-        <service id="bernard.normalizer.default_message" class="Bernard\Normalizer\DefaultMessageNormalizer">
+        <service id="bernard.normalizer.plain_message" class="Bernard\Normalizer\PlainMessageNormalizer">
             <tag name="bernard.normalizer" />
         </service>
+
+        <service id="bernard.normalizer.default_message" class="Bernard\BernardBundle\Normalizer\DefaultMessageNormalizer">
+            <tag name="bernard.normalizer" />
+        </service>
+
 
         <!-- Drivers -->
 

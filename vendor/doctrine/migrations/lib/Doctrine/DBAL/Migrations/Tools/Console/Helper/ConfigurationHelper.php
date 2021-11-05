@@ -1,26 +1,13 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Migrations\Tools\Console\Helper;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Migrations\Configuration\ArrayConfiguration;
 use Doctrine\DBAL\Migrations\Configuration\Configuration;
+use Doctrine\DBAL\Migrations\Configuration\JsonConfiguration;
+use Doctrine\DBAL\Migrations\Configuration\XmlConfiguration;
+use Doctrine\DBAL\Migrations\Configuration\YamlConfiguration;
 use Doctrine\DBAL\Migrations\OutputWriter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Helper\Helper;
@@ -30,7 +17,7 @@ use Symfony\Component\Console\Helper\Helper;
  * @package Doctrine\DBAL\Migrations\Tools\Console\Helper
  * @internal
  */
-class ConfigurationHelper extends Helper
+class ConfigurationHelper extends Helper implements ConfigurationHelperInterface
 {
 
     /**
@@ -67,6 +54,8 @@ class ConfigurationHelper extends Helper
         if ($this->configuration) {
             $outputWriter->write("Loading configuration from the integration code of your framework (setter).");
 
+            $this->configuration->setOutputWriter($outputWriter);
+
             return $this->configuration;
         }
 
@@ -77,7 +66,8 @@ class ConfigurationHelper extends Helper
             'migrations.xml',
             'migrations.yml',
             'migrations.yaml',
-            'migrations.json'
+            'migrations.json',
+            'migrations.php',
         ];
         foreach ($defaultConfig as $config) {
             if ($this->configExists($config)) {
@@ -98,13 +88,13 @@ class ConfigurationHelper extends Helper
 
     private function loadConfig($config, OutputWriter $outputWriter)
     {
-        $map = array(
-            'xml'   => '\XmlConfiguration',
-            'yaml'  => '\YamlConfiguration',
-            'yml'   => '\YamlConfiguration',
-            'php'   => '\ArrayConfiguration',
-            'json'  => '\JsonConfiguration'
-        );
+        $map = [
+            'xml'   => XmlConfiguration::class,
+            'yaml'  => YamlConfiguration::class,
+            'yml'   => YamlConfiguration::class,
+            'php'   => ArrayConfiguration::class,
+            'json'  => JsonConfiguration::class,
+        ];
 
         $info = pathinfo($config);
         // check we can support this file type
@@ -112,8 +102,7 @@ class ConfigurationHelper extends Helper
             throw new \InvalidArgumentException('Given config file type is not supported');
         }
 
-        $class         = 'Doctrine\DBAL\Migrations\Configuration';
-        $class        .= $map[$info['extension']];
+        $class         = $map[$info['extension']];
         $configuration = new $class($this->connection, $outputWriter);
         $configuration->load($config);
 

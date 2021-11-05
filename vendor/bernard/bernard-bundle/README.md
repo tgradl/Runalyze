@@ -58,6 +58,7 @@ service definitions.
 ``` yaml
 my_receiver:
     class: Acme\Receiver
+    # public: true # Make sure the service is public
     tags:
          - { name: bernard.receiver, message: SendNewsletter }
          - { name: bernard.receiver, message: ImportUsers }
@@ -140,7 +141,7 @@ bernard:
 ```
 
 If you're using the [SncRedisBundle](https://github.com/snc/SncRedisBundle) you have to set logging to false for the
-bernhard client to ensure that is is a ``Redis`` instance and not wrapped.
+bernhard client to ensure that is is a ``Redis`` instance and not wrapped. Also, if the consumer is throwing `RedisException: read error on connection`, you need to set `connection_timeout` (see SncRedisBundle configuration options) option to a value higher than 5 (seconds).
 
 ### IronMQ
 

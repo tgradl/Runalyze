@@ -11,7 +11,7 @@ framework:
     session:
         # handler_id set to null will use default session handler from php.ini
         handler_id:  ~
-        storage_id: session.storage.filesystem
+        storage_id: session.storage.mock_file
         # https://groups.google.com/forum/#!topic/symfony2/IB-CpMgo5o0
         name: MOCKSESSID
     profiler:
@@ -25,7 +25,7 @@ monolog:
             handler:      nested
         nested:
             type:  stream
-            path:  %kernel.logs_dir%/%kernel.environment%.log
+            path:  "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
 
 liip_functional_test: ~
@@ -33,7 +33,7 @@ liip_functional_test: ~
 doctrine:
     dbal:
         driver: pdo_sqlite
-        path: %kernel.cache_dir%/test.db
+        path: "%kernel.cache_dir%/test.db"
         charset: UTF8
     orm:
         default_entity_manager: default
@@ -77,4 +77,3 @@ security:
             provider: chain_provider
     access_control:
         - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-

@@ -11,10 +11,10 @@
 
 namespace Liip\FunctionalTestBundle\DependencyInjection;
 
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class LiipFunctionalTestExtension extends Extension
 {
@@ -29,6 +29,7 @@ class LiipFunctionalTestExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('commands.xml');
         $loader->load('functional_test.xml');
         if (interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface')) {
             $loader->load('validator.xml');

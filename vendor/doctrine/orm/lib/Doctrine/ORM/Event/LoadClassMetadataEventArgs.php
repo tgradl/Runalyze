@@ -19,7 +19,7 @@
 
 namespace Doctrine\ORM\Event;
 
-use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs as BaseLoadClassMetadataEventArgs;
+use Doctrine\Persistence\Event\LoadClassMetadataEventArgs as BaseLoadClassMetadataEventArgs;
 
 /**
  * Class that holds event arguments for a loadMetadata event.
@@ -30,7 +30,7 @@ use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs as BaseLoadClas
  * Note: method annotations are used instead of method overrides (due to BC policy)
  *
  * @method __construct(\Doctrine\ORM\Mapping\ClassMetadata $classMetadata, \Doctrine\ORM\EntityManager $objectManager)
- * @method \Doctrine\ORM\EntityManager getClassMetadata()
+ * @method \Doctrine\ORM\Mapping\ClassMetadata getClassMetadata()
  */
 class LoadClassMetadataEventArgs extends BaseLoadClassMetadataEventArgs
 {

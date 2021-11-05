@@ -1,6 +1,11 @@
 # Changelog
+### 1.4.2 to 1.4.3
+* Added support for SF4
+* Fixed jms.js error
 
-### 1.3.2 to UNRELEASED
+### 1.3.2 to 1.4.2
+* Remove dependencies on JMSDiExtraBundle and JMSAopBundle. If you do not use these bundles elsewhere in your application you will need to remove the reference to them in `registerBundles` of your `AppKernel` 
+* Added support for nikic/parser v4
 
 ### 1.3.1 to 1.3.2
 * Added configuration options to disable date/sources in xliff dump

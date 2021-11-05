@@ -11,8 +11,8 @@
 
 namespace Liip\FunctionalTestBundle\DependencyInjection;
 
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * This class contains the configuration information for the bundle.
@@ -31,13 +31,13 @@ class Configuration implements ConfigurationInterface
                 ->ifArray()->then(function ($v) {
                     if (!empty($v['query_count.max_query_count'])) {
                         // Normalization is for BC.
-    // @codeCoverageIgnoreStart
-     $v['query']['max_query_count'] = $v['query_count.max_query_count'];
+                        // @codeCoverageIgnoreStart
+                        $v['query']['max_query_count'] = $v['query_count.max_query_count'];
                         unset($v['query_count.max_query_count']);
                     }
-// @codeCoverageIgnoreEnd
+                    // @codeCoverageIgnoreEnd
 
-return $v;
+                    return $v;
                 })
             ->end()
             ->children()
@@ -71,11 +71,11 @@ return $v;
                         ->end()
                         ->arrayNode('ignores')
                             ->prototype('scalar')->end()
-                            ->defaultValue(array())
+                            ->defaultValue([])
                         ->end()
                         ->arrayNode('ignores_extract')
                             ->prototype('scalar')->end()
-                            ->defaultValue(array())
+                            ->defaultValue([])
                         ->end()
                     ->end()
                 ->end()

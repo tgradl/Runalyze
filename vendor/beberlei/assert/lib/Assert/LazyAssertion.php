@@ -22,6 +22,7 @@ use LogicException;
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  *
  * @method LazyAssertion alnum(string|callable $message = null, string $propertyPath = null) Assert that value is alphanumeric.
+ * @method LazyAssertion base64(string|callable $message = null, string $propertyPath = null) Assert that a constant is defined.
  * @method LazyAssertion between(mixed $lowerLimit, mixed $upperLimit, string $message = null, string $propertyPath = null) Assert that a value is greater or equal than a lower limit, and less than or equal to an upper limit.
  * @method LazyAssertion betweenExclusive(mixed $lowerLimit, mixed $upperLimit, string $message = null, string $propertyPath = null) Assert that a value is greater than a lower limit, and less than an upper limit.
  * @method LazyAssertion betweenLength(int $minLength, int $maxLength, string|callable $message = null, string $propertyPath = null, string $encoding = 'utf8') Assert that string length is between min,max lengths.
@@ -30,13 +31,13 @@ use LogicException;
  * @method LazyAssertion choicesNotEmpty(array $choices, string|callable $message = null, string $propertyPath = null) Determines if the values array has every choice as key and that this choice has content.
  * @method LazyAssertion classExists(string|callable $message = null, string $propertyPath = null) Assert that the class exists.
  * @method LazyAssertion contains(string $needle, string|callable $message = null, string $propertyPath = null, string $encoding = 'utf8') Assert that string contains a sequence of chars.
- * @method LazyAssertion count(array|\Countable $count, string $message = null, string $propertyPath = null) Assert that the count of countable is equal to count.
+ * @method LazyAssertion count(int $count, string $message = null, string $propertyPath = null) Assert that the count of countable is equal to count.
  * @method LazyAssertion date(string $format, string|callable $message = null, string $propertyPath = null) Assert that date is valid and corresponds to the given format.
  * @method LazyAssertion defined(string|callable $message = null, string $propertyPath = null) Assert that a constant is defined.
  * @method LazyAssertion digit(string|callable $message = null, string $propertyPath = null) Validates if an integer or integerish is a digit.
  * @method LazyAssertion directory(string|callable $message = null, string $propertyPath = null) Assert that a directory exists.
  * @method LazyAssertion e164(string|callable $message = null, string $propertyPath = null) Assert that the given string is a valid E164 Phone Number.
- * @method LazyAssertion email(string|callable $message = null, string $propertyPath = null) Assert that value is an email adress (using input_filter/FILTER_VALIDATE_EMAIL).
+ * @method LazyAssertion email(string|callable $message = null, string $propertyPath = null) Assert that value is an email address (using input_filter/FILTER_VALIDATE_EMAIL).
  * @method LazyAssertion endsWith(string $needle, string|callable $message = null, string $propertyPath = null, string $encoding = 'utf8') Assert that string ends with a sequence of chars.
  * @method LazyAssertion eq(mixed $value2, string|callable $message = null, string $propertyPath = null) Assert that two values are equal (using == ).
  * @method LazyAssertion extensionLoaded(string|callable $message = null, string $propertyPath = null) Assert that extension is loaded.
@@ -60,12 +61,13 @@ use LogicException;
  * @method LazyAssertion isInstanceOf(string $className, string|callable $message = null, string $propertyPath = null) Assert that value is instance of given class-name.
  * @method LazyAssertion isJsonString(string|callable $message = null, string $propertyPath = null) Assert that the given string is a valid json string.
  * @method LazyAssertion isObject(string|callable $message = null, string $propertyPath = null) Determines that the provided value is an object.
+ * @method LazyAssertion isResource(string|callable $message = null, string $propertyPath = null) Assert that value is a resource.
  * @method LazyAssertion isTraversable(string|callable $message = null, string $propertyPath = null) Assert that value is an array or a traversable object.
  * @method LazyAssertion keyExists(string|int $key, string|callable $message = null, string $propertyPath = null) Assert that key exists in an array.
  * @method LazyAssertion keyIsset(string|int $key, string|callable $message = null, string $propertyPath = null) Assert that key exists in an array/array-accessible object using isset().
  * @method LazyAssertion keyNotExists(string|int $key, string|callable $message = null, string $propertyPath = null) Assert that key does not exist in an array.
  * @method LazyAssertion length(int $length, string|callable $message = null, string $propertyPath = null, string $encoding = 'utf8') Assert that string has a given length.
- * @method LazyAssertion lessOrEqualThan(mixed $limit, string|callable $message = null, string $propertyPath = null) Determines if the value is less or than given limit.
+ * @method LazyAssertion lessOrEqualThan(mixed $limit, string|callable $message = null, string $propertyPath = null) Determines if the value is less or equal than given limit.
  * @method LazyAssertion lessThan(mixed $limit, string|callable $message = null, string $propertyPath = null) Determines if the value is less than given limit.
  * @method LazyAssertion max(mixed $maxValue, string|callable $message = null, string $propertyPath = null) Assert that a number is smaller as a given limit.
  * @method LazyAssertion maxLength(int $maxLength, string|callable $message = null, string $propertyPath = null, string $encoding = 'utf8') Assert that string value is not longer than $maxLength chars.
@@ -83,7 +85,10 @@ use LogicException;
  * @method LazyAssertion notSame(mixed $value2, string|callable $message = null, string $propertyPath = null) Assert that two values are not the same (using === ).
  * @method LazyAssertion null(string|callable $message = null, string $propertyPath = null) Assert that value is null.
  * @method LazyAssertion numeric(string|callable $message = null, string $propertyPath = null) Assert that value is numeric.
+ * @method LazyAssertion objectOrClass(string|callable $message = null, string $propertyPath = null) Assert that the value is an object, or a class that exists.
  * @method LazyAssertion phpVersion(mixed $version, string|callable $message = null, string $propertyPath = null) Assert on PHP version.
+ * @method LazyAssertion propertiesExist(array $properties, string|callable $message = null, string $propertyPath = null) Assert that the value is an object or class, and that the properties all exist.
+ * @method LazyAssertion propertyExists(string $property, string|callable $message = null, string $propertyPath = null) Assert that the value is an object or class, and that the property exists.
  * @method LazyAssertion range(mixed $minValue, mixed $maxValue, string|callable $message = null, string $propertyPath = null) Assert that value is in range of numbers.
  * @method LazyAssertion readable(string|callable $message = null, string $propertyPath = null) Assert that the value is something readable.
  * @method LazyAssertion regex(string $pattern, string|callable $message = null, string $propertyPath = null) Assert that value matches a regex.
@@ -109,6 +114,9 @@ class LazyAssertion
     private $currentChain;
     private $errors = array();
 
+    /** @var string The class to use as AssertionChain factory */
+    private $assertClass = 'Assert\Assert';
+
     /** @var string|LazyAssertionException The class to use for exceptions */
     private $exceptionClass = 'Assert\LazyAssertionException';
 
@@ -116,7 +124,8 @@ class LazyAssertion
     {
         $this->currentChainFailed = false;
         $this->thisChainTryAll = false;
-        $this->currentChain = Assert::that($value, $defaultMessage, $propertyPath);
+        $assertClass = $this->assertClass;
+        $this->currentChain = $assertClass::that($value, $defaultMessage, $propertyPath);
 
         return $this;
     }
@@ -134,15 +143,15 @@ class LazyAssertion
 
     public function __call($method, $args)
     {
-        if ($this->alwaysTryAll === false
-            && $this->thisChainTryAll === false
-            && $this->currentChainFailed === true
+        if (false === $this->alwaysTryAll
+            && false === $this->thisChainTryAll
+            && true === $this->currentChainFailed
         ) {
             return $this;
         }
 
         try {
-            call_user_func_array(array($this->currentChain, $method), $args);
+            \call_user_func_array(array($this->currentChain, $method), $args);
         } catch (AssertionFailedException $e) {
             $this->errors[] = $e;
             $this->currentChainFailed = true;
@@ -159,7 +168,7 @@ class LazyAssertion
     public function verifyNow()
     {
         if ($this->errors) {
-            throw call_user_func(array($this->exceptionClass, 'fromErrors'), $this->errors);
+            throw \call_user_func(array($this->exceptionClass, 'fromErrors'), $this->errors);
         }
 
         return true;
@@ -170,13 +179,33 @@ class LazyAssertion
      *
      * @return $this
      */
+    public function setAssertClass($className)
+    {
+        if (!\is_string($className)) {
+            throw new LogicException('Assert class name must be passed as a string');
+        }
+
+        if ('Assert\Assert' !== $className && !\is_subclass_of($className, 'Assert\Assert')) {
+            throw new LogicException($className . ' is not (a subclass of) Assert\Assert');
+        }
+
+        $this->assertClass = $className;
+
+        return $this;
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return $this
+     */
     public function setExceptionClass($className)
     {
-        if (!is_string($className)) {
+        if (!\is_string($className)) {
             throw new LogicException('Exception class name must be passed as a string');
         }
 
-        if ($className !== 'Assert\LazyAssertionException' && !is_subclass_of($className, 'Assert\LazyAssertionException')) {
+        if ('Assert\LazyAssertionException' !== $className && !\is_subclass_of($className, 'Assert\LazyAssertionException')) {
             throw new LogicException($className . ' is not (a subclass of) Assert\LazyAssertionException');
         }
 

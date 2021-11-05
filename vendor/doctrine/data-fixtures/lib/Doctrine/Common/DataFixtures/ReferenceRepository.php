@@ -1,33 +1,24 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
+
+declare(strict_types=1);
 
 namespace Doctrine\Common\DataFixtures;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use BadMethodCallException;
 use Doctrine\ODM\PHPCR\DocumentManager as PhpcrDocumentManager;
+use Doctrine\Persistence\ObjectManager;
+use OutOfBoundsException;
+
+use function array_key_exists;
+use function array_keys;
+use function get_class;
+use function method_exists;
+use function sprintf;
 
 /**
  * ReferenceRepository class manages references for
  * fixtures in order to easily support the relations
  * between fixtures
- *
- * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
 class ReferenceRepository
 {
@@ -37,7 +28,7 @@ class ReferenceRepository
      *
      * @var array
      */
-    private $references = array();
+    private $references = [];
 
     /**
      * List of identifiers stored for references
@@ -46,20 +37,15 @@ class ReferenceRepository
      *
      * @var array
      */
-    private $identities = array();
+    private $identities = [];
 
     /**
      * Currently used object manager
      *
-     * @var Doctrine\Common\Persistence\ObjectManager
+     * @var ObjectManager
      */
     private $manager;
 
-    /**
-     * Initialize the ReferenceRepository
-     *
-     * @param Doctrine\Common\Persistence\ObjectManager $manager
-     */
     public function __construct(ObjectManager $manager)
     {
         $this->manager = $manager;
@@ -76,7 +62,7 @@ class ReferenceRepository
     protected function getIdentifier($reference, $uow)
     {
         // In case Reference is not yet managed in UnitOfWork
-        if ( ! $this->hasIdentifier($reference)) {
+        if (! $this->hasIdentifier($reference)) {
             $class = $this->manager->getClassMetadata(get_class($reference));
 
             return $class->getIdentifierValues($reference);
@@ -85,6 +71,11 @@ class ReferenceRepository
         // Dealing with ORM UnitOfWork
         if (method_exists($uow, 'getEntityIdentifier')) {
             return $uow->getEntityIdentifier($reference);
+        }
+
+        // PHPCR ODM UnitOfWork
+        if ($this->manager instanceof PhpcrDocumentManager) {
+            return $uow->getDocumentId($reference);
         }
 
         // ODM UnitOfWork
@@ -103,18 +94,20 @@ class ReferenceRepository
     {
         $this->references[$name] = $reference;
 
-        if ($this->hasIdentifier($reference)) {
-            // in case if reference is set after flush, store its identity
-            $uow = $this->manager->getUnitOfWork();
-            $this->identities[$name] = $this->getIdentifier($reference, $uow);
+        if (! $this->hasIdentifier($reference)) {
+            return;
         }
+
+        // in case if reference is set after flush, store its identity
+        $uow                     = $this->manager->getUnitOfWork();
+        $this->identities[$name] = $this->getIdentifier($reference, $uow);
     }
 
     /**
      * Store the identifier of a reference
      *
      * @param string $name
-     * @param mixed $identity
+     * @param mixed  $identity
      */
     public function setReferenceIdentity($name, $identity)
     {
@@ -132,15 +125,20 @@ class ReferenceRepository
      *
      * @param string $name
      * @param object $object - managed object
-     * @throws BadMethodCallException - if repository already has
-     *      a reference by $name
+     *
      * @return void
+     *
+     * @throws BadMethodCallException - if repository already has a reference by $name.
      */
     public function addReference($name, $object)
     {
         if (isset($this->references[$name])) {
-            throw new \BadMethodCallException("Reference to: ({$name}) already exists, use method setReference in order to override it");
+            throw new BadMethodCallException(sprintf(
+                'Reference to "%s" already exists, use method setReference in order to override it',
+                $name
+            ));
         }
+
         $this->setReference($name, $object);
     }
 
@@ -149,20 +147,22 @@ class ReferenceRepository
      * named by $name
      *
      * @param string $name
-     * @throws OutOfBoundsException - if repository does not exist
+     *
      * @return object
+     *
+     * @throws OutOfBoundsException - if repository does not exist.
      */
     public function getReference($name)
     {
-        if (!$this->hasReference($name)) {
-            throw new \OutOfBoundsException("Reference to: ({$name}) does not exist");
+        if (! $this->hasReference($name)) {
+            throw new OutOfBoundsException(sprintf('Reference to "%s" does not exist', $name));
         }
 
         $reference = $this->references[$name];
-        $meta = $this->manager->getClassMetadata(get_class($reference));
+        $meta      = $this->manager->getClassMetadata(get_class($reference));
 
-        if (!$this->manager->contains($reference) && isset($this->identities[$name])) {
-            $reference = $this->manager->getReference(
+        if (! $this->manager->contains($reference) && isset($this->identities[$name])) {
+            $reference               = $this->manager->getReference(
                 $meta->name,
                 $this->identities[$name]
             );
@@ -177,7 +177,8 @@ class ReferenceRepository
      * named by $name
      *
      * @param string $name
-     * @return boolean
+     *
+     * @return bool
      */
     public function hasReference($name)
     {
@@ -189,6 +190,7 @@ class ReferenceRepository
      * list of stored references
      *
      * @param object $reference
+     *
      * @return array
      */
     public function getReferenceNames($reference)
@@ -200,6 +202,8 @@ class ReferenceRepository
      * Checks if reference has identity stored
      *
      * @param string $name
+     *
+     * @return bool
      */
     public function hasIdentity($name)
     {
@@ -229,7 +233,7 @@ class ReferenceRepository
     /**
      * Get object manager
      *
-     * @return Doctrine\Common\Persistence\ObjectManager
+     * @return ObjectManager
      */
     public function getManager()
     {
@@ -239,7 +243,7 @@ class ReferenceRepository
     /**
      * Checks if object has identifier already in unit of work.
      *
-     * @param $reference
+     * @param string $reference
      *
      * @return bool
      */
@@ -250,8 +254,8 @@ class ReferenceRepository
 
         if ($this->manager instanceof PhpcrDocumentManager) {
             return $uow->contains($reference);
-        } else {
-            return $uow->isInIdentityMap($reference);
         }
+
+        return $uow->isInIdentityMap($reference);
     }
 }

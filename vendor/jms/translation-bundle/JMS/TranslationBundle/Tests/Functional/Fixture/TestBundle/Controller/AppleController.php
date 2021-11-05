@@ -2,8 +2,6 @@
 
 namespace JMS\TranslationBundle\Tests\Functional\Fixture\TestBundle\Controller;
 
-use JMS\DiExtraBundle\Annotation as DI;
-use JMS\SecurityExtraBundle\Annotation\PreAuthorize;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
@@ -15,7 +13,7 @@ class AppleController
 {
     /**
      * @Route("/view")
-     * @Template
+     * @Template("@Test/Apple/view.html.twig")
      */
     public function viewAction()
     {

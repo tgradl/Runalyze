@@ -22,6 +22,7 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
  * So it must be loaded in a separate process.
  *
  * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class WebTestCaseConfigPhpcrTest extends WebTestCase
 {
@@ -32,7 +33,7 @@ class WebTestCaseConfigPhpcrTest extends WebTestCase
         return 'AppConfigPhpcrKernel';
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         // https://github.com/liip/LiipFunctionalTestBundle#non-sqlite
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -51,9 +52,9 @@ class WebTestCaseConfigPhpcrTest extends WebTestCase
 
     public function testLoadFixturesPhPCr()
     {
-        $fixtures = $this->loadFixtures(array(
+        $fixtures = $this->loadFixtures([
             'Liip\FunctionalTestBundle\Tests\AppConfigPhpcr\DataFixtures\PHPCR\LoadTaskData',
-        ), null, 'doctrine_phpcr');
+        ], null, 'doctrine_phpcr');
 
         $this->assertInstanceOf(
             'Doctrine\Bundle\PHPCRBundle\DataFixtures\PHPCRExecutor',

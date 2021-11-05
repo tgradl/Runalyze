@@ -11,34 +11,34 @@
 
 namespace Liip\FunctionalTestBundle\Test;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\StreamOutput;
-use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Bundle\DoctrineFixturesBundle\Common\DataFixtures\Loader;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
+use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as SqliteDriver;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
-use Nelmio\Alice\Fixtures;
 use Liip\FunctionalTestBundle\Utils\HttpAssertions;
+use Nelmio\Alice\Fixtures;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Bundle\DoctrineFixturesBundle\Common\DataFixtures\Loader;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
+use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @author Lea Haensenberger
@@ -48,29 +48,58 @@ use Liip\FunctionalTestBundle\Utils\HttpAssertions;
 abstract class WebTestCase extends BaseWebTestCase
 {
     protected $environment = 'test';
+
     protected $containers;
+
     protected $kernelDir;
+
     // 5 * 1024 * 1024 KB
     protected $maxMemory = 5242880;
 
     // RUN COMMAND
     protected $verbosityLevel;
+
     protected $decorated;
 
     /**
      * @var array
      */
-    private $firewallLogins = array();
+    private $firewallLogins = [];
 
     /**
      * @var array
      */
-    private $excludedDoctrineTables = array();
+    private $excludedDoctrineTables = [];
 
     /**
      * @var array
      */
-    private static $cachedMetadatas = array();
+    private static $cachedMetadatas = [];
+
+    /**
+     * Asserts that the HTTP response code of the last request performed by
+     * $client matches the expected code. If not, raises an error with more
+     * information.
+     *
+     * @param $expectedStatusCode
+     * @param Client $client
+     */
+    public static function assertStatusCode($expectedStatusCode, Client $client)
+    {
+        HttpAssertions::assertStatusCode($expectedStatusCode, $client);
+    }
+
+    /**
+     * Assert that the last validation errors within $container match the
+     * expected keys.
+     *
+     * @param array              $expected  A flat array of field names
+     * @param ContainerInterface $container
+     */
+    public static function assertValidationErrors(array $expected, ContainerInterface $container)
+    {
+        HttpAssertions::assertValidationErrors($expected, $container);
+    }
 
     protected static function getKernelClass()
     {
@@ -112,7 +141,7 @@ abstract class WebTestCase extends BaseWebTestCase
      *
      * @return string
      */
-    protected function runCommand($name, array $params = array(), $reuseKernel = false)
+    protected function runCommand($name, array $params = [], $reuseKernel = false)
     {
         array_unshift($params, $name);
 
@@ -121,26 +150,22 @@ abstract class WebTestCase extends BaseWebTestCase
                 static::$kernel->shutdown();
             }
 
-            $kernel = static::$kernel = $this->createKernel(array('environment' => $this->environment));
+            $kernel = static::$kernel = $this->createKernel(['environment' => $this->environment]);
             $kernel->boot();
         } else {
             $kernel = $this->getContainer()->get('kernel');
         }
 
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-
-        // @codeCoverageIgnoreStart
-        if ('203' === substr(Kernel::VERSION_ID, 0, 3)) {
-            $params = $this->configureVerbosityForSymfony203($params);
-        }
-        // @codeCoverageIgnoreEnd
+        $application = $this->createApplication($kernel);
 
         $input = new ArrayInput($params);
         $input->setInteractive(false);
 
         $fp = fopen('php://temp/maxmemory:'.$this->maxMemory, 'r+');
-        $output = new StreamOutput($fp, $this->getVerbosityLevel(), $this->getDecorated());
+        $verbosityLevel = $this->getVerbosityLevel();
+
+        $this->setVerbosityLevelEnv($verbosityLevel);
+        $output = new StreamOutput($fp, $verbosityLevel, $this->getDecorated());
 
         $application->run($input, $output);
 
@@ -150,13 +175,26 @@ abstract class WebTestCase extends BaseWebTestCase
     }
 
     /**
+     * @param KernelInterface $kernel
+     *
+     * @return Application
+     */
+    protected function createApplication(KernelInterface $kernel)
+    {
+        $application = new Application($kernel);
+        $application->setAutoExit(false);
+
+        return $application;
+    }
+
+    /**
      * Retrieves the output verbosity level.
      *
-     * @see Symfony\Component\Console\Output\OutputInterface for available levels
-     *
-     * @return int
+     * @see \Symfony\Component\Console\Output\OutputInterface for available levels
      *
      * @throws \OutOfBoundsException If the set value isn't accepted
+     *
+     * @return int
      */
     protected function getVerbosityLevel()
     {
@@ -186,44 +224,21 @@ abstract class WebTestCase extends BaseWebTestCase
         return $this->verbosityLevel;
     }
 
-    /**
-     * In Symfony 2.3.* the verbosity level has to be set through {Symfony\Component\Console\Input\ArrayInput} and not
-     * in {Symfony\Component\Console\Output\OutputInterface}.
-     *
-     * This method builds $params to be passed to {Symfony\Component\Console\Input\ArrayInput}.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param array $params
-     *
-     * @return array
-     */
-    private function configureVerbosityForSymfony203(array $params)
-    {
-        switch ($this->getVerbosityLevel()) {
-            case OutputInterface::VERBOSITY_QUIET:
-                $params['-q'] = '-q';
-                break;
-
-            case OutputInterface::VERBOSITY_VERBOSE:
-                $params['-v'] = '';
-                break;
-
-            case OutputInterface::VERBOSITY_VERY_VERBOSE:
-                $params['-vv'] = '';
-                break;
-
-            case OutputInterface::VERBOSITY_DEBUG:
-                $params['-vvv'] = '';
-                break;
-        }
-
-        return $params;
-    }
-
     public function setVerbosityLevel($level)
     {
         $this->verbosityLevel = $level;
+    }
+
+    /**
+     * Set verbosity for Symfony 3.4+.
+     *
+     * @see https://github.com/symfony/symfony/pull/24425
+     *
+     * @param $level
+     */
+    private function setVerbosityLevelEnv($level)
+    {
+        putenv('SHELL_VERBOSITY='.$level);
     }
 
     /**
@@ -268,13 +283,16 @@ abstract class WebTestCase extends BaseWebTestCase
 
         $cacheKey = $this->kernelDir.'|'.$this->environment;
         if (empty($this->containers[$cacheKey])) {
-            $options = array(
+            $options = [
                 'environment' => $this->environment,
-            );
+            ];
             $kernel = $this->createKernel($options);
             $kernel->boot();
 
-            $this->containers[$cacheKey] = $kernel->getContainer();
+            $baseContainer = $kernel->getContainer();
+
+            // Try to check for the special test container
+            $this->containers[$cacheKey] = $baseContainer->has('test.service_container') ? $baseContainer->get('test.service_container') : $baseContainer;
         }
 
         if (isset($tmpKernelDir)) {
@@ -404,10 +422,15 @@ abstract class WebTestCase extends BaseWebTestCase
                 if ($container->getParameter('liip_functional_test.cache_sqlite_db')) {
                     $backup = $container->getParameter('kernel.cache_dir').'/test_'.md5(serialize($metadatas).serialize($classNames)).'.db';
                     if (file_exists($backup) && file_exists($backup.'.ser') && $this->isBackupUpToDate($classNames, $backup)) {
+                        $connection = $this->getContainer()->get('doctrine.orm.entity_manager')->getConnection();
+                        if (null !== $connection) {
+                            $connection->close();
+                        }
+
                         $om->flush();
                         $om->clear();
 
-                        $this->preFixtureRestore($om, $referenceRepository);
+                        $this->preFixtureBackupRestore($om, $referenceRepository, $backup);
 
                         copy($backup, $name);
 
@@ -415,7 +438,7 @@ abstract class WebTestCase extends BaseWebTestCase
                         $executor->setReferenceRepository($referenceRepository);
                         $executor->getReferenceRepository()->load($backup);
 
-                        $this->postFixtureRestore();
+                        $this->postFixtureBackupRestore($backup);
 
                         return $executor;
                     }
@@ -465,7 +488,7 @@ abstract class WebTestCase extends BaseWebTestCase
 
         $executor->execute($loader->getFixtures(), true);
 
-        if (isset($name) && isset($backup)) {
+        if (isset($name, $backup)) {
             $this->preReferenceSave($om, $executor, $backup);
 
             $executor->getReferenceRepository()->save($backup);
@@ -483,19 +506,21 @@ abstract class WebTestCase extends BaseWebTestCase
      * @param ManagerRegistry $registry
      * @param EntityManager   $om
      * @param null            $omName
+     * @param string          $registryName
+     * @param int             $purgeMode
      */
-    private function cleanDatabase(ManagerRegistry $registry, EntityManager $om, $omName = null)
+    private function cleanDatabase(ManagerRegistry $registry, EntityManager $om, $omName = null, $registryName = 'doctrine', $purgeMode = null)
     {
         $connection = $om->getConnection();
 
-        $mysql = ($registry->getName() === 'ORM'
+        $mysql = ('ORM' === $registry->getName()
             && $connection->getDatabasePlatform() instanceof MySqlPlatform);
 
         if ($mysql) {
             $connection->query('SET FOREIGN_KEY_CHECKS=0');
         }
 
-        $this->loadFixtures(array(), $omName);
+        $this->loadFixtures([], $omName, $registryName, $purgeMode);
 
         if ($mysql) {
             $connection->query('SET FOREIGN_KEY_CHECKS=1');
@@ -507,17 +532,23 @@ abstract class WebTestCase extends BaseWebTestCase
      *
      * @param array $paths
      *
+     * @throws \InvalidArgumentException if a wrong path is given outside a bundle
+     *
      * @return array $files
      */
     private function locateResources($paths)
     {
-        $files = array();
+        $files = [];
 
         $kernel = $this->getContainer()->get('kernel');
 
         foreach ($paths as $path) {
-            if ($path[0] !== '@' && file_exists($path) === true) {
+            if ('@' !== $path[0]) {
+                if (!file_exists($path)) {
+                    throw new \InvalidArgumentException(sprintf('Unable to find file "%s".', $path));
+                }
                 $files[] = $path;
+
                 continue;
             }
 
@@ -532,12 +563,13 @@ abstract class WebTestCase extends BaseWebTestCase
      * @param bool   $append
      * @param null   $omName
      * @param string $registryName
-     *
-     * @return array
+     * @param int    $purgeMode
      *
      * @throws \BadMethodCallException
+     *
+     * @return array
      */
-    public function loadFixtureFiles(array $paths = array(), $append = false, $omName = null, $registryName = 'doctrine')
+    public function loadFixtureFiles(array $paths = [], $append = false, $omName = null, $registryName = 'doctrine', $purgeMode = null)
     {
         if (!class_exists('Nelmio\Alice\Fixtures')) {
             // This class is available during tests, no exception will be thrown.
@@ -555,8 +587,8 @@ abstract class WebTestCase extends BaseWebTestCase
         /** @var EntityManager $om */
         $om = $registry->getManager($omName);
 
-        if ($append === false) {
-            $this->cleanDatabase($registry, $om, $omName);
+        if (false === $append) {
+            $this->cleanDatabase($registry, $om, $omName, $registryName, $purgeMode);
         }
 
         $files = $this->locateResources($paths);
@@ -587,6 +619,8 @@ abstract class WebTestCase extends BaseWebTestCase
      * Callback function to be executed after Schema restore.
      *
      * @return WebTestCase
+     *
+     * @deprecated since version 1.8, to be removed in 2.0. Use postFixtureBackupRestore method instead.
      */
     protected function postFixtureRestore()
     {
@@ -599,9 +633,44 @@ abstract class WebTestCase extends BaseWebTestCase
      * @param ProxyReferenceRepository $referenceRepository The reference repository
      *
      * @return WebTestCase
+     *
+     * @deprecated since version 1.8, to be removed in 2.0. Use preFixtureBackupRestore method instead.
      */
     protected function preFixtureRestore(ObjectManager $manager, ProxyReferenceRepository $referenceRepository)
     {
+    }
+
+    /**
+     * Callback function to be executed after Schema restore.
+     *
+     * @param string $backupFilePath Path of file used to backup the references of the data fixtures
+     *
+     * @return WebTestCase
+     */
+    protected function postFixtureBackupRestore($backupFilePath)
+    {
+        $this->postFixtureRestore();
+
+        return $this;
+    }
+
+    /**
+     * Callback function to be executed before Schema restore.
+     *
+     * @param ObjectManager            $manager             The object manager
+     * @param ProxyReferenceRepository $referenceRepository The reference repository
+     * @param string                   $backupFilePath      Path of file used to backup the references of the data fixtures
+     *
+     * @return WebTestCase
+     */
+    protected function preFixtureBackupRestore(
+        ObjectManager $manager,
+        ProxyReferenceRepository $referenceRepository,
+        $backupFilePath
+    ) {
+        $this->preFixtureRestore($manager, $referenceRepository);
+
+        return $this;
     }
 
     /**
@@ -666,7 +735,13 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     protected function loadFixtureClass($loader, $className)
     {
-        $fixture = new $className();
+        $fixture = null;
+
+        if ($this->getContainer()->has($className)) {
+            $fixture = $this->getContainer()->get($className);
+        } else {
+            $fixture = new $className();
+        }
 
         if ($loader->hasFixture($fixture)) {
             unset($fixture);
@@ -698,25 +773,25 @@ abstract class WebTestCase extends BaseWebTestCase
      *
      * @return Client
      */
-    protected function makeClient($authentication = false, array $params = array())
+    protected function makeClient($authentication = false, array $params = [])
     {
         if ($authentication) {
-            if ($authentication === true) {
-                $authentication = array(
+            if (true === $authentication) {
+                $authentication = [
                     'username' => $this->getContainer()
                         ->getParameter('liip_functional_test.authentication.username'),
                     'password' => $this->getContainer()
                         ->getParameter('liip_functional_test.authentication.password'),
-                );
+                ];
             }
 
-            $params = array_merge($params, array(
+            $params = array_merge($params, [
                 'PHP_AUTH_USER' => $authentication['username'],
                 'PHP_AUTH_PW' => $authentication['password'],
-            ));
+            ]);
         }
 
-        $client = static::createClient(array('environment' => $this->environment), $params);
+        $client = static::createClient(['environment' => $this->environment], $params);
 
         if ($this->firewallLogins) {
             // has to be set otherwise "hasPreviousSession" in Request returns false.
@@ -791,7 +866,7 @@ abstract class WebTestCase extends BaseWebTestCase
      *
      * @return string
      */
-    protected function getUrl($route, $params = array(), $absolute = UrlGeneratorInterface::ABSOLUTE_PATH)
+    protected function getUrl($route, $params = [], $absolute = UrlGeneratorInterface::ABSOLUTE_PATH)
     {
         return $this->getContainer()->get('router')->generate($route, $params, $absolute);
     }
@@ -866,31 +941,6 @@ abstract class WebTestCase extends BaseWebTestCase
         $this->firewallLogins[$firewallName] = $user;
 
         return $this;
-    }
-
-    /**
-     * Asserts that the HTTP response code of the last request performed by
-     * $client matches the expected code. If not, raises an error with more
-     * information.
-     *
-     * @param $expectedStatusCode
-     * @param Client $client
-     */
-    public function assertStatusCode($expectedStatusCode, Client $client)
-    {
-        HttpAssertions::assertStatusCode($expectedStatusCode, $client);
-    }
-
-    /**
-     * Assert that the last validation errors within $container match the
-     * expected keys.
-     *
-     * @param array              $expected  A flat array of field names
-     * @param ContainerInterface $container
-     */
-    public function assertValidationErrors(array $expected, ContainerInterface $container)
-    {
-        HttpAssertions::assertValidationErrors($expected, $container);
     }
 
     /**

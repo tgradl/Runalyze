@@ -20,7 +20,7 @@ class BinaryNoFuncOverload
 {
     public static function strlen($s)
     {
-        return strlen($s);
+        return \strlen($s);
     }
 
     public static function strpos($haystack, $needle, $offset = 0)
@@ -33,7 +33,7 @@ class BinaryNoFuncOverload
         return strrpos($haystack, $needle, $offset);
     }
 
-    public static function substr($string, $start, $length = PHP_INT_MAX)
+    public static function substr($string, $start, $length = \PHP_INT_MAX)
     {
         return substr($string, $start, $length);
     }

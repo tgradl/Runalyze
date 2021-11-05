@@ -1,1 +1,4 @@
 node_modules
+# test responses from geocoder are not needed
+vendor/willdurand/geocoder/tests/.cached_responses/
+

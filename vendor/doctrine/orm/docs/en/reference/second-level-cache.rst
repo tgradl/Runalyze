@@ -11,7 +11,7 @@ The Second Level Cache is designed to reduce the amount of necessary database ac
 It sits between your application and the database to avoid the number of database hits as much as possible.
 
 When turned on, entities will be first searched in cache and if they are not found,
-a database query will be fired an then the entity result will be stored in a cache provider.
+a database query will be fired and then the entity result will be stored in a cache provider.
 
 There are some flavors of caching available, but is better to cache read-only data.
 
@@ -77,11 +77,10 @@ A query region might be something like :
 Cache Regions
 -------------
 
-``Doctrine\ORM\Cache\Region\DefaultRegion`` It's the default implementation.
+``Doctrine\ORM\Cache\Region\DefaultRegion`` is the default implementation.
  A simplest cache region compatible with all doctrine-cache drivers but does not support locking.
-
 ``Doctrine\ORM\Cache\Region`` and ``Doctrine\ORM\Cache\ConcurrentRegion``
-Defines contracts that should be implemented by a cache provider.
+define contracts that should be implemented by a cache provider.
 
 It allows you to provide your own cache implementation that might take advantage of specific cache driver.
 
@@ -91,13 +90,10 @@ If you want to support locking for ``READ_WRITE`` strategies you should implemen
 Cache region
 ~~~~~~~~~~~~
 
-Defines a contract for accessing a particular region.
+``Doctrine\ORM\Cache\Region`` defines a contract for accessing a particular
+cache region.
 
-``Doctrine\ORM\Cache\Region``
-
-Defines a contract for accessing a particular cache region.
-
-`See API Doc <http://www.doctrine-project.org/api/orm/2.5/class-Doctrine.ORM.Cache.Region.html/>`_.
+`See API Doc <https://www.doctrine-project.org/api/orm/current/Doctrine/ORM/Cache/Region.html>`_.
 
 Concurrent cache region
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,11 +103,9 @@ By default, Doctrine provides a very simple implementation based on file locks `
 
 If you want to use an ``READ_WRITE`` cache, you should consider providing your own cache region.
 
-``Doctrine\ORM\Cache\ConcurrentRegion``
+``Doctrine\ORM\Cache\ConcurrentRegion`` defines a contract for concurrently managed data region.
 
-Defines contract for concurrently managed data region.
-
-`See API Doc <http://www.doctrine-project.org/api/orm/2.5/class-Doctrine.ORM.Cache.ConcurrentRegion.html/>`_.
+`See API Doc <https://www.doctrine-project.org/api/orm/current/Doctrine/ORM/Cache/ConcurrentRegion.html>`_.
 
 Timestamp region
 ~~~~~~~~~~~~~~~~
@@ -120,7 +114,7 @@ Timestamp region
 
 Tracks the timestamps of the most recent updates to particular entity.
 
-`See API Doc <http://www.doctrine-project.org/api/orm/2.5/class-Doctrine.ORM.Cache.TimestampRegion.html/>`_.
+`See API Doc <http://www.doctrine-project.org/api/orm/current/Doctrine/ORM/Cache/TimestampRegion.html>`_.
 
 .. _reference-second-level-cache-mode:
 
@@ -149,25 +143,25 @@ Caching mode
 
 
 Built-in cached persisters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Cached persisters are responsible to access cache regions.
 
-    +-----------------------+-------------------------------------------------------------------------------+
-    | Cache Usage           | Persister                                                                     |
-    +=======================+===============================================================================+
-    | READ_ONLY             | Doctrine\\ORM\\Cache\\Persister\\ReadOnlyCachedEntityPersister                |
-    +-----------------------+-------------------------------------------------------------------------------+
-    | READ_WRITE            | Doctrine\\ORM\\Cache\\Persister\\ReadWriteCachedEntityPersister               |
-    +-----------------------+-------------------------------------------------------------------------------+
-    | NONSTRICT_READ_WRITE  | Doctrine\\ORM\\Cache\\Persister\\NonStrictReadWriteCachedEntityPersister      |
-    +-----------------------+-------------------------------------------------------------------------------+
-    | READ_ONLY             | Doctrine\\ORM\\Cache\\Persister\\ReadOnlyCachedCollectionPersister            |
-    +-----------------------+-------------------------------------------------------------------------------+
-    | READ_WRITE            | Doctrine\\ORM\\Cache\\Persister\\ReadWriteCachedCollectionPersister           |
-    +-----------------------+-------------------------------------------------------------------------------+
-    | NONSTRICT_READ_WRITE  | Doctrine\\ORM\\Cache\\Persister\\NonStrictReadWriteCacheCollectionPersister   |
-    +-----------------------+-------------------------------------------------------------------------------+
+    +-----------------------+-------------------------------------------------------------------------------------------+
+    | Cache Usage           | Persister                                                                                 |
+    +=======================+===========================================================================================+
+    | READ_ONLY             | Doctrine\\ORM\\Cache\\Persister\\Entity\\ReadOnlyCachedEntityPersister                    |
+    +-----------------------+-------------------------------------------------------------------------------------------+
+    | READ_WRITE            | Doctrine\\ORM\\Cache\\Persister\\Entity\\ReadWriteCachedEntityPersister                   |
+    +-----------------------+-------------------------------------------------------------------------------------------+
+    | NONSTRICT_READ_WRITE  | Doctrine\\ORM\\Cache\\Persister\\Entity\\NonStrictReadWriteCachedEntityPersister          |
+    +-----------------------+-------------------------------------------------------------------------------------------+
+    | READ_ONLY             | Doctrine\\ORM\\Cache\\Persister\\Collection\\ReadOnlyCachedCollectionPersister            |
+    +-----------------------+-------------------------------------------------------------------------------------------+
+    | READ_WRITE            | Doctrine\\ORM\\Cache\\Persister\\Collection\\ReadWriteCachedCollectionPersister           |
+    +-----------------------+-------------------------------------------------------------------------------------------+
+    | NONSTRICT_READ_WRITE  | Doctrine\\ORM\\Cache\\Persister\\Collection\\NonStrictReadWriteCachedCollectionPersister  |
+    +-----------------------+-------------------------------------------------------------------------------------------+
 
 Configuration
 -------------
@@ -177,7 +171,7 @@ Doctrine allows you to specify configurations and some points of extension for t
 Enable Second Level Cache
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To enable the second-level-cache, you should provide a cache factory
+To enable the second-level-cache, you should provide a cache factory.
 ``\Doctrine\ORM\Cache\DefaultCacheFactory`` is the default implementation.
 
 .. code-block:: php
@@ -203,13 +197,18 @@ Cache Factory is the main point of extension.
 
 It allows you to provide a specific implementation of the following components :
 
-* ``QueryCache`` Store and retrieve query cache results.
-* ``CachedEntityPersister`` Store and retrieve entity results.
-* ``CachedCollectionPersister`` Store and retrieve query results.
-* ``EntityHydrator``  Transform an entity into a cache entry and cache entry into entities
-* ``CollectionHydrator`` Transform a collection into a cache entry and cache entry into collection
+``QueryCache``
+    stores and retrieves query cache results.
+``CachedEntityPersister``
+    stores and retrieves entity results.
+``CachedCollectionPersister``
+    stores and retrieves query results.
+``EntityHydrator``
+    transforms entities into a cache entries and cache entries into entities
+``CollectionHydrator``
+    transforms collections into cache entries and cache entries into collections
 
-`See API Doc <http://www.doctrine-project.org/api/orm/2.5/class-Doctrine.ORM.Cache.DefaultCacheFactory.html/>`_.
+`See API Doc <http://www.doctrine-project.org/api/orm/current/Doctrine/ORM/Cache/DefaultCacheFactory.html>`_.
 
 Region Lifetime
 ~~~~~~~~~~~~~~~
@@ -220,13 +219,13 @@ To specify a default lifetime for all regions or specify a different lifetime fo
 
     <?php
     /* @var $config \Doctrine\ORM\Configuration */
-    /* @var $cacheConfig \Doctrine\ORM\Configuration */
+    /* @var $cacheConfig \Doctrine\ORM\Cache\CacheConfiguration */
     $cacheConfig  =  $config->getSecondLevelCacheConfiguration();
     $regionConfig =  $cacheConfig->getRegionsConfiguration();
 
     // Cache Region lifetime
-    $regionConfig->setLifetime('my_entity_region', 3600);   // Time to live for a specific region; In seconds
-    $regionConfig->setDefaultLifetime(7200);                // Default time to live; In seconds
+    $regionConfig->setLifetime('my_entity_region', 3600);   // Time to live for a specific region (in seconds)
+    $regionConfig->setDefaultLifetime(7200);                // Default time to live (in seconds)
 
 
 Cache Log
@@ -239,7 +238,7 @@ By providing a cache logger you should be able to get information about all cach
 
     <?php
     /* @var $config \Doctrine\ORM\Configuration */
-    $logger = \Doctrine\ORM\Cache\Logging\StatisticsCacheLogger();
+    $logger = new \Doctrine\ORM\Cache\Logging\StatisticsCacheLogger();
 
     // Cache logger
     $config->setSecondLevelCacheEnabled(true);
@@ -267,18 +266,22 @@ By providing a cache logger you should be able to get information about all cach
     // Get the total number of cached entries *not* found in all regions.
     $logger->getMissCount();
 
-If you want to get more information you should implement ``\Doctrine\ORM\Cache\Logging\CacheLogger``.
-and collect all information you want.
+If you want to get more information you should implement
+``\Doctrine\ORM\Cache\Logging\CacheLogger`` and collect
+all the information you want.
 
-`See API Doc <http://www.doctrine-project.org/api/orm/2.5/class-Doctrine.ORM.Cache.CacheLogger.html/>`_.
+`See API Doc <http://www.doctrine-project.org/api/orm/current/Doctrine/ORM/Cache/Logging/CacheLogger.html>`_.
 
 
 Entity cache definition
 -----------------------
 * Entity cache configuration allows you to define the caching strategy and region for an entity.
 
-  * ``usage`` Specifies the caching strategy: ``READ_ONLY``, ``NONSTRICT_READ_WRITE``, ``READ_WRITE``. see :ref:`reference-second-level-cache-mode`
-  * ``region`` Optional value that specifies the name of the second level cache region.
+  * ``usage`` specifies the caching strategy: ``READ_ONLY``,
+``NONSTRICT_READ_WRITE``, ``READ_WRITE``.
+See :ref:`reference-second-level-cache-mode`.
+  * ``region`` is an optional value that specifies the name of the second
+level cache region.
 
 
 .. configuration-block::
@@ -310,7 +313,7 @@ Entity cache definition
     .. code-block:: xml
 
         <?xml version="1.0" encoding="utf-8"?>
-        <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+        <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
           <entity name="Country">
             <cache usage="READ_ONLY" region="my_entity_region" />
             <id name="id" type="integer" column="id">
@@ -386,7 +389,7 @@ It caches the primary keys of association and cache each element will be cached 
     .. code-block:: xml
 
         <?xml version="1.0" encoding="utf-8"?>
-        <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+        <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
           <entity name="State">
 
             <cache usage="NONSTRICT_READ_WRITE" />
@@ -579,7 +582,8 @@ The Cache Mode controls how a particular query interacts with the second-level c
 DELETE / UPDATE queries
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-DQL UPDATE / DELETE statements are ported directly into a database and bypass the second-level cache,
+DQL UPDATE / DELETE statements are ported directly into a database and bypass
+the second-level cache.
 Entities that are already cached will NOT be invalidated.
 However the cached data could be evicted using the cache API or an special query hint.
 
@@ -619,10 +623,10 @@ Execute the ``UPDATE`` and invalidate ``a specific cache entry`` using the cache
     $em->getCache()->evictEntity('Entity\Country', 1);
 
 Using the repository query cache
----------------------
+--------------------------------
 
 As well as ``Query Cache`` all persister queries store only identifier values for an individual query.
-All persister use a single timestamps cache region keeps track of the last update for each persister,
+All persisters use a single timestamp cache region to keep track of the last update for each persister,
 When a query is loaded from cache, the timestamp region is checked for the last update for that persister.
 Using the last update timestamps as part of the query key invalidate the cache key when an update occurs.
 
@@ -641,7 +645,7 @@ Using the last update timestamps as part of the query key invalidate the cache k
     $em->clear();
 
     // Reload from database.
-    // At this point the query cache key if not logger valid, the select goes straight
+    // At this point the query cache key is no longer valid, the select goes straight to the database
     $entities   = $em->getRepository('Entity\Country')->findAll();
 
 Cache API
@@ -728,4 +732,5 @@ Paginator
 ~~~~~~~~~
 
 Count queries generated by ``Doctrine\ORM\Tools\Pagination\Paginator`` are not cached by second-level cache.
-Although entities and query result are cached count queries will hit the database every time.
+Although entities and query result are cached, count queries will hit the
+database every time.

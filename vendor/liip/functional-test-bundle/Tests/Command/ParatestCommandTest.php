@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Kernel;
  * So it must be loaded in a separate process.
  *
  * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class ParatestCommandTest extends WebTestCase
 {
@@ -41,35 +42,19 @@ class ParatestCommandTest extends WebTestCase
         $application->setAutoExit(false);
 
         $this->isDecorated(false);
-        $content = $this->runCommand('paratest:run', array(
+        $content = $this->runCommand('paratest:run', [
             // Only launch one test class, launching more classes may start an infinite loop.
             'options' => 'Tests/Test/WebTestCaseTest.php',
-        ));
+        ]);
 
         $this->assertContains('Running phpunit in 3 processes with vendor/bin/phpunit', $content);
         $this->assertContains('Initial schema created', $content);
         $this->assertNotContains('Error : Install paratest first', $content);
         $this->assertContains('Done...Running test.', $content);
 
-        // Symfony 2.7+.
-        if (interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface')) {
-            $this->assertContains(
-                'OK (22 tests, 69 assertions)',
-                $content
-            );
-        }
-        // Travis CI: --prefer-lowest.
-        // Symfony 2.3.27.
-        elseif ('20327' === Kernel::VERSION_ID) {
-            self::markTestSkipped('Ignore Symfony 2.3.27');
-        }
-        // Symfony 2.3.*.
-        // Some tests will be skipped.
-        else {
-            $this->assertContains(
-                'OK (18 tests, 55 assertions)',
-                $content
-            );
-        }
+        $this->assertContains(
+            'OK (22 tests, 69 assertions)',
+            $content
+        );
     }
 }
