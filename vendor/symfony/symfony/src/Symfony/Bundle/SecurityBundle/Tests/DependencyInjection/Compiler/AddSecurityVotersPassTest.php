@@ -18,19 +18,16 @@ use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Tests\Authorization\Stub\VoterWithoutInterface;
 
 class AddSecurityVotersPassTest extends TestCase
 {
-    /**
-     * @expectedException \Symfony\Component\DependencyInjection\Exception\LogicException
-     */
     public function testNoVoters()
     {
+        $this->expectException('Symfony\Component\DependencyInjection\Exception\LogicException');
         $container = new ContainerBuilder();
         $container
             ->register('security.access.decision_manager', AccessDecisionManager::class)
-            ->addArgument(array())
+            ->addArgument([])
         ;
 
         $compilerPass = new AddSecurityVotersPass();
@@ -42,7 +39,7 @@ class AddSecurityVotersPassTest extends TestCase
         $container = new ContainerBuilder();
         $container
             ->register('security.access.decision_manager', AccessDecisionManager::class)
-            ->addArgument(array())
+            ->addArgument([])
         ;
         $container
             ->register('no_prio_service', Voter::class)
@@ -50,15 +47,15 @@ class AddSecurityVotersPassTest extends TestCase
         ;
         $container
             ->register('lowest_prio_service', Voter::class)
-            ->addTag('security.voter', array('priority' => 100))
+            ->addTag('security.voter', ['priority' => 100])
         ;
         $container
             ->register('highest_prio_service', Voter::class)
-            ->addTag('security.voter', array('priority' => 200))
+            ->addTag('security.voter', ['priority' => 200])
         ;
         $container
             ->register('zero_prio_service', Voter::class)
-            ->addTag('security.voter', array('priority' => 0))
+            ->addTag('security.voter', ['priority' => 0])
         ;
         $compilerPass = new AddSecurityVotersPass();
         $compilerPass->process($container);
@@ -79,7 +76,7 @@ class AddSecurityVotersPassTest extends TestCase
         $container = new ContainerBuilder();
         $container
             ->register('security.access.decision_manager', AccessDecisionManager::class)
-            ->addArgument(array())
+            ->addArgument([])
         ;
         $container
             ->register('without_interface', VoterWithoutInterface::class)
@@ -100,19 +97,15 @@ class AddSecurityVotersPassTest extends TestCase
     public function testVoterMissingInterfaceAndMethod()
     {
         $exception = LogicException::class;
-        $message = 'stdClass should implement the Symfony\Component\Security\Core\Authorization\Voter\VoterInterface interface when used as voter.';
+        $message = '"stdClass" should implement the "Symfony\Component\Security\Core\Authorization\Voter\VoterInterface" interface when used as voter.';
 
-        if (method_exists($this, 'expectException')) {
-            $this->expectException($exception);
-            $this->expectExceptionMessage($message);
-        } else {
-            $this->setExpectedException($exception, $message);
-        }
+        $this->expectException($exception);
+        $this->expectExceptionMessage($message);
 
         $container = new ContainerBuilder();
         $container
             ->register('security.access.decision_manager', AccessDecisionManager::class)
-            ->addArgument(array())
+            ->addArgument([])
         ;
         $container
             ->register('without_method', 'stdClass')
@@ -120,5 +113,12 @@ class AddSecurityVotersPassTest extends TestCase
         ;
         $compilerPass = new AddSecurityVotersPass();
         $compilerPass->process($container);
+    }
+}
+
+class VoterWithoutInterface
+{
+    public function vote()
+    {
     }
 }

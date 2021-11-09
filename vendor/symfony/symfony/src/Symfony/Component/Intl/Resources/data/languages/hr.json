@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.1",
     "Names": {
         "aa": "afarski",
         "ab": "abhaski",
@@ -25,6 +24,7 @@
         "arc": "aramejski",
         "arn": "mapuche",
         "arp": "arapaho",
+        "ars": "najdi arapski",
         "arw": "aravački",
         "as": "asamski",
         "asa": "asu",
@@ -71,6 +71,7 @@
         "car": "karipski",
         "cay": "cayuga",
         "cch": "atsam",
+        "ccp": "chakma",
         "ce": "čečenski",
         "ceb": "cebuano",
         "cgg": "chiga",
@@ -138,6 +139,7 @@
         "eu": "baskijski",
         "ewo": "ewondo",
         "fa": "perzijski",
+        "fa_AF": "dari",
         "fan": "fang",
         "fat": "fanti",
         "ff": "fula",

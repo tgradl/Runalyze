@@ -30,7 +30,7 @@ class ManagerRegistryTest extends TestCase
     {
         $container = new \LazyServiceProjectServiceContainer();
 
-        $registry = new TestManagerRegistry('name', array(), array('defaultManager' => 'foo'), 'defaultConnection', 'defaultManager', 'proxyInterfaceName');
+        $registry = new TestManagerRegistry('name', [], ['defaultManager' => 'foo'], 'defaultConnection', 'defaultManager', 'proxyInterfaceName');
         $registry->setTestContainer($container);
 
         $foo = $container->get('foo');
@@ -40,7 +40,7 @@ class ManagerRegistryTest extends TestCase
         $registry->resetManager();
 
         $this->assertSame($foo, $container->get('foo'));
-        $this->assertFalse(isset($foo->bar));
+        $this->assertObjectNotHasAttribute('bar', $foo);
     }
 }
 

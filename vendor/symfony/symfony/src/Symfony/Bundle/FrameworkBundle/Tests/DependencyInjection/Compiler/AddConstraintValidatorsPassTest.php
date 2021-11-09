@@ -28,33 +28,31 @@ class AddConstraintValidatorsPassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $validatorFactory = $container->register('validator.validator_factory')
-            ->addArgument(array());
+            ->addArgument([]);
 
         $container->register('my_constraint_validator_service1', Validator1::class)
-            ->addTag('validator.constraint_validator', array('alias' => 'my_constraint_validator_alias1'));
+            ->addTag('validator.constraint_validator', ['alias' => 'my_constraint_validator_alias1']);
         $container->register('my_constraint_validator_service2', Validator2::class)
             ->addTag('validator.constraint_validator');
 
         $addConstraintValidatorsPass = new AddConstraintValidatorsPass();
         $addConstraintValidatorsPass->process($container);
 
-        $expected = (new Definition(ServiceLocator::class, array(array(
+        $expected = (new Definition(ServiceLocator::class, [[
             Validator1::class => new ServiceClosureArgument(new Reference('my_constraint_validator_service1')),
             'my_constraint_validator_alias1' => new ServiceClosureArgument(new Reference('my_constraint_validator_service1')),
             Validator2::class => new ServiceClosureArgument(new Reference('my_constraint_validator_service2')),
-        ))))->addTag('container.service_locator')->setPublic(false);
+        ]]))->addTag('container.service_locator')->setPublic(false);
         $this->assertEquals($expected, $container->getDefinition((string) $validatorFactory->getArgument(0)));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The service "my_abstract_constraint_validator" tagged "validator.constraint_validator" must not be abstract.
-     */
     public function testAbstractConstraintValidator()
     {
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('The service "my_abstract_constraint_validator" tagged "validator.constraint_validator" must not be abstract.');
         $container = new ContainerBuilder();
-        $validatorFactory = $container->register('validator.validator_factory')
-            ->addArgument(array());
+        $container->register('validator.validator_factory')
+            ->addArgument([]);
 
         $container->register('my_abstract_constraint_validator')
             ->setAbstract(true)
@@ -66,18 +64,10 @@ class AddConstraintValidatorsPassTest extends TestCase
 
     public function testThatCompilerPassIsIgnoredIfThereIsNoConstraintValidatorFactoryDefinition()
     {
-        $definition = $this->getMockBuilder('Symfony\Component\DependencyInjection\Definition')->getMock();
-        $container = $this->getMockBuilder('Symfony\Component\DependencyInjection\ContainerBuilder')->setMethods(array('hasDefinition', 'findTaggedServiceIds', 'getDefinition'))->getMock();
-
-        $container->expects($this->never())->method('findTaggedServiceIds');
-        $container->expects($this->never())->method('getDefinition');
-        $container->expects($this->atLeastOnce())
-            ->method('hasDefinition')
-            ->with('validator.validator_factory')
-            ->will($this->returnValue(false));
-        $definition->expects($this->never())->method('replaceArgument');
-
         $addConstraintValidatorsPass = new AddConstraintValidatorsPass();
-        $addConstraintValidatorsPass->process($container);
+        $addConstraintValidatorsPass->process(new ContainerBuilder());
+
+        // we just check that the pass does not fail if no constraint validator factory is registered
+        $this->addToAssertionCount(1);
     }
 }

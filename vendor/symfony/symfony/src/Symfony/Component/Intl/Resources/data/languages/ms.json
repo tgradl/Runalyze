@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.5",
     "Names": {
         "aa": "Afar",
         "ab": "Abkhazia",
@@ -23,6 +22,7 @@
         "arn": "Mapuche",
         "arp": "Arapaho",
         "arq": "Arab Algeria",
+        "ars": "Arab Najdi",
         "ary": "Arab Maghribi",
         "arz": "Arab Mesir",
         "as": "Assam",
@@ -66,6 +66,7 @@
         "byv": "Medumba",
         "ca": "Catalonia",
         "cay": "Cayuga",
+        "ccp": "Chakma",
         "ce": "Chechen",
         "ceb": "Cebuano",
         "cgg": "Chiga",
@@ -119,6 +120,7 @@
         "eu": "Basque",
         "ewo": "Ewondo",
         "fa": "Parsi",
+        "fa_AF": "Dari",
         "ff": "Fulah",
         "fi": "Finland",
         "fil": "Filipina",

@@ -11,18 +11,18 @@
 
 namespace Symfony\Component\Cache\Tests\Simple;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Symfony\Component\Cache\Simple\DoctrineCache;
+use Symfony\Component\Cache\Tests\Fixtures\ArrayCache;
 
 /**
  * @group time-sensitive
  */
 class DoctrineCacheTest extends CacheTestCase
 {
-    protected $skippedTests = array(
+    protected $skippedTests = [
         'testObjectDoesNotChangeInCache' => 'ArrayCache does not use serialize/unserialize',
         'testNotUnserializable' => 'ArrayCache does not use serialize/unserialize',
-    );
+    ];
 
     public function createSimpleCache($defaultLifetime = 0)
     {

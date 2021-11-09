@@ -33,7 +33,7 @@ class CacheClearCommandTest extends TestCase
     {
         $this->fs = new Filesystem();
         $this->kernel = new TestAppKernel('test', true);
-        $this->rootDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.uniqid('sf2_cache_', true);
+        $this->rootDir = sys_get_temp_dir().\DIRECTORY_SEPARATOR.uniqid('sf2_cache_', true);
         $this->kernel->setRootDir($this->rootDir);
         $this->fs->mkdir($this->rootDir);
     }
@@ -45,7 +45,7 @@ class CacheClearCommandTest extends TestCase
 
     public function testCacheIsFreshAfterCacheClearedWithWarmup()
     {
-        $input = new ArrayInput(array('cache:clear'));
+        $input = new ArrayInput(['cache:clear']);
         $application = new Application($this->kernel);
         $application->setCatchExceptions(false);
 
@@ -54,7 +54,7 @@ class CacheClearCommandTest extends TestCase
         // Ensure that all *.meta files are fresh
         $finder = new Finder();
         $metaFiles = $finder->files()->in($this->kernel->getCacheDir())->name('*.php.meta');
-        // simply check that cache is warmed up
+        // check that cache is warmed up
         $this->assertNotEmpty($metaFiles);
         $configCacheFactory = new ConfigCacheFactory(true);
 
@@ -67,7 +67,7 @@ class CacheClearCommandTest extends TestCase
         // check that app kernel file present in meta file of container's cache
         $containerClass = $this->kernel->getContainer()->getParameter('kernel.container_class');
         $containerRef = new \ReflectionClass($containerClass);
-        $containerFile = dirname(dirname($containerRef->getFileName())).'/'.$containerClass.'.php';
+        $containerFile = \dirname(\dirname($containerRef->getFileName())).'/'.$containerClass.'.php';
         $containerMetaFile = $containerFile.'.meta';
         $kernelRef = new \ReflectionObject($this->kernel);
         $kernelFile = $kernelRef->getFileName();
@@ -82,11 +82,11 @@ class CacheClearCommandTest extends TestCase
         }
         $this->assertTrue($found, 'Kernel file should present as resource');
 
-        if (defined('HHVM_VERSION')) {
+        if (\defined('HHVM_VERSION')) {
             return;
         }
         $containerRef = new \ReflectionClass(require $containerFile);
-        $containerFile = str_replace('tes_'.DIRECTORY_SEPARATOR, 'test'.DIRECTORY_SEPARATOR, $containerRef->getFileName());
-        $this->assertRegExp(sprintf('/\'kernel.container_class\'\s*=>\s*\'%s\'/', $containerClass), file_get_contents($containerFile), 'kernel.container_class is properly set on the dumped container');
+        $containerFile = str_replace('tes_'.\DIRECTORY_SEPARATOR, 'test'.\DIRECTORY_SEPARATOR, $containerRef->getFileName());
+        $this->assertMatchesRegularExpression(sprintf('/\'kernel.container_class\'\s*=>\s*\'%s\'/', $containerClass), file_get_contents($containerFile), 'kernel.container_class is properly set on the dumped container');
     }
 }

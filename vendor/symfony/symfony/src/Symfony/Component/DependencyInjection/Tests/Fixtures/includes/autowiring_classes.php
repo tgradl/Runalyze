@@ -2,6 +2,10 @@
 
 namespace Symfony\Component\DependencyInjection\Tests\Compiler;
 
+if (PHP_VERSION_ID >= 80000) {
+    require __DIR__.'/uniontype_classes.php';
+}
+
 class Foo
 {
 }
@@ -90,6 +94,13 @@ class J
     }
 }
 
+class K
+{
+    public function __construct(IInterface $i)
+    {
+    }
+}
+
 interface CollisionInterface
 {
 }
@@ -105,20 +116,6 @@ class CollisionB implements CollisionInterface
 class CannotBeAutowired
 {
     public function __construct(CollisionInterface $collision)
-    {
-    }
-}
-
-class CannotBeAutowiredForwardOrder
-{
-    public function __construct(CollisionA $a, CollisionInterface $b, CollisionB $c)
-    {
-    }
-}
-
-class CannotBeAutowiredReverseOrder
-{
-    public function __construct(CollisionA $a, CollisionB $c, CollisionInterface $b)
     {
     }
 }
@@ -174,7 +171,7 @@ class NotGuessableArgumentForSubclass
 }
 class MultipleArguments
 {
-    public function __construct(A $k, $foo, Dunglas $dunglas)
+    public function __construct(A $k, $foo, Dunglas $dunglas, array $bar)
     {
     }
 }
@@ -188,12 +185,6 @@ class MultipleArgumentsOptionalScalar
 class MultipleArgumentsOptionalScalarLast
 {
     public function __construct(A $a, Lille $lille, $foo = 'some_val')
-    {
-    }
-}
-class MultipleArgumentsOptionalScalarNotReallyOptional
-{
-    public function __construct(A $a, $foo = 'default_val', Lille $lille)
     {
     }
 }

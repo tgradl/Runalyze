@@ -15,6 +15,8 @@ use Symfony\Component\HttpKernel\Profiler\Profile;
 use Symfony\Component\HttpKernel\Profiler\ProfilerStorageInterface;
 
 /**
+ * @deprecated since version 3.2.0 as \Symfony\Component\HttpKernel\Profiler\ProfilerStorageInterface is now marked as internal
+ *
  * RedisProfilerStorage stores profiling information in Redis.
  *
  * This class is a reimplementation of
@@ -184,7 +186,9 @@ class RedisProfilerStorage implements ProfilerStorageInterface
         $data = array(
             'token' => $profile->getToken(),
             'parent' => $profile->getParentToken(),
-            'children' => array_map(function ($p) { return $p->getToken(); }, $profile->getChildren()),
+            'children' => array_map(function ($p) {
+                return $p->getToken();
+            }, $profile->getChildren()),
             'data' => $profile->getCollectors(),
             'ip' => $profile->getIp(),
             'method' => $profile->getMethod(),

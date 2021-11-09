@@ -11,7 +11,9 @@
 
 namespace League\Geotools\Batch;
 
-use League\Geotools\Cache\CacheInterface;
+use Geocoder\Collection;
+use League\Geotools\Exception\InvalidArgumentException;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Batch interface
@@ -47,7 +49,7 @@ interface BatchInterface
     /**
      * Returns an array of AddressCollection processed in serie.
      *
-     * @return AddressCollection[]
+     * @return Collection[]
      *
      * @throws \Exception
      */
@@ -56,7 +58,7 @@ interface BatchInterface
     /**
      * Returns an array of AddressCollection processed in parallel.
      *
-     * @return AddressCollection[]
+     * @return Collection[]
      *
      * @throws \Exception
      */
@@ -65,9 +67,9 @@ interface BatchInterface
     /**
      * Set the cache object to use.
      *
-     * @param CacheInterface $cache The cache object to use.
+     * @param CacheItemPoolInterface $cache The cache object to use.
      *
      * @return BatchInterface
      */
-    public function setCache(CacheInterface $cache);
+    public function setCache(CacheItemPoolInterface $cache);
 }

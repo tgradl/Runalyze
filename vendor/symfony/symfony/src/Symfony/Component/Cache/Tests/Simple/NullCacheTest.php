@@ -40,14 +40,14 @@ class NullCacheTest extends TestCase
     {
         $cache = $this->createCachePool();
 
-        $keys = array('foo', 'bar', 'baz', 'biz');
+        $keys = ['foo', 'bar', 'baz', 'biz'];
 
         $default = new \stdClass();
         $items = $cache->getMultiple($keys, $default);
         $count = 0;
 
         foreach ($items as $key => $item) {
-            $this->assertTrue(in_array($key, $keys), 'Cache key can not change.');
+            $this->assertContains($key, $keys, 'Cache key can not change.');
             $this->assertSame($default, $item);
 
             // Remove $key for $keys
@@ -75,7 +75,7 @@ class NullCacheTest extends TestCase
 
     public function testDeleteMultiple()
     {
-        $this->assertTrue($this->createCachePool()->deleteMultiple(array('key', 'foo', 'bar')));
+        $this->assertTrue($this->createCachePool()->deleteMultiple(['key', 'foo', 'bar']));
     }
 
     public function testSet()
@@ -90,7 +90,7 @@ class NullCacheTest extends TestCase
     {
         $cache = $this->createCachePool();
 
-        $this->assertFalse($cache->setMultiple(array('key' => 'val')));
+        $this->assertFalse($cache->setMultiple(['key' => 'val']));
         $this->assertNull($cache->get('key'));
     }
 }

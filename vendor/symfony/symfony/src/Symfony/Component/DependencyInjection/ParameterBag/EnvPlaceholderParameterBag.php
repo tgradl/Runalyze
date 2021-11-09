@@ -11,16 +11,16 @@
 
 namespace Symfony\Component\DependencyInjection\ParameterBag;
 
-use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
 /**
  * @author Nicolas Grekas <p@tchwork.com>
  */
 class EnvPlaceholderParameterBag extends ParameterBag
 {
-    private $envPlaceholders = array();
-    private $providedTypes = array();
+    private $envPlaceholders = [];
+    private $providedTypes = [];
 
     /**
      * {@inheritdoc}
@@ -36,14 +36,14 @@ class EnvPlaceholderParameterBag extends ParameterBag
                 }
             }
             if (!preg_match('/^(?:\w++:)*+\w++$/', $env)) {
-                throw new InvalidArgumentException(sprintf('Invalid %s name: only "word" characters are allowed.', $name));
+                throw new InvalidArgumentException(sprintf('Invalid "%s" name: only "word" characters are allowed.', $name));
             }
 
             if ($this->has($name)) {
                 $defaultValue = parent::get($name);
 
                 if (null !== $defaultValue && !is_scalar($defaultValue)) {
-                    throw new RuntimeException(sprintf('The default value of an env() parameter must be scalar or null, but "%s" given to "%s".', gettype($defaultValue), $name));
+                    throw new RuntimeException(sprintf('The default value of an env() parameter must be scalar or null, but "%s" given to "%s".', \gettype($defaultValue), $name));
                 }
             }
 
@@ -116,7 +116,7 @@ class EnvPlaceholderParameterBag extends ParameterBag
             if (is_numeric($default = $this->parameters[$name])) {
                 $this->parameters[$name] = (string) $default;
             } elseif (null !== $default && !is_scalar($default)) {
-                throw new RuntimeException(sprintf('The default value of env parameter "%s" must be scalar or null, %s given.', $env, gettype($default)));
+                throw new RuntimeException(sprintf('The default value of env parameter "%s" must be scalar or null, "%s" given.', $env, \gettype($default)));
             }
         }
     }

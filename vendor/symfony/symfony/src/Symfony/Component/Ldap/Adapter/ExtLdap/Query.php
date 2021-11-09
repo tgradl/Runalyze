@@ -27,7 +27,7 @@ class Query extends AbstractQuery
     /** @var resource */
     private $search;
 
-    public function __construct(Connection $connection, $dn, $query, array $options = array())
+    public function __construct(Connection $connection, $dn, $query, array $options = [])
     {
         parent::__construct($connection, $dn, $query, $options);
     }
@@ -45,7 +45,7 @@ class Query extends AbstractQuery
         $this->search = null;
 
         if (!$success) {
-            throw new LdapException(sprintf('Could not free results: %s.', ldap_error($con)));
+            throw new LdapException('Could not free results: '.ldap_error($con));
         }
     }
 

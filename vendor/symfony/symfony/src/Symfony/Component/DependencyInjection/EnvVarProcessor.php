@@ -32,7 +32,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
      */
     public static function getProvidedTypes()
     {
-        return array(
+        return [
             'base64' => 'string',
             'bool' => 'bool',
             'const' => 'bool|int|float|string|array',
@@ -42,7 +42,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
             'json' => 'array',
             'resolve' => 'string',
             'string' => 'string',
-        );
+        ];
     }
 
     /**
@@ -57,7 +57,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
                 throw new RuntimeException(sprintf('Invalid file name: env var "%s" is non-scalar.', $name));
             }
             if (!file_exists($file)) {
-                throw new RuntimeException(sprintf('Env "file:%s" not found: %s does not exist.', $name, $file));
+                throw new RuntimeException(sprintf('Env "file:%s" not found: "%s" does not exist.', $name, $file));
             }
 
             return file_get_contents($file);
@@ -65,7 +65,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
 
         if (false !== $i || 'string' !== $prefix) {
             if (null === $env = $getEnv($name)) {
-                return;
+                return null;
             }
         } elseif (isset($_ENV[$name])) {
             $env = $_ENV[$name];
@@ -77,12 +77,12 @@ class EnvVarProcessor implements EnvVarProcessorInterface
             }
 
             if (null === $env = $this->container->getParameter("env($name)")) {
-                return;
+                return null;
             }
         }
 
         if (!is_scalar($env)) {
-            throw new RuntimeException(sprintf('Non-scalar env var "%s" cannot be cast to %s.', $name, $prefix));
+            throw new RuntimeException(sprintf('Non-scalar env var "%s" cannot be cast to "%s".', $name, $prefix));
         }
 
         if ('string' === $prefix) {
@@ -110,11 +110,11 @@ class EnvVarProcessor implements EnvVarProcessorInterface
         }
 
         if ('const' === $prefix) {
-            if (!defined($env)) {
+            if (!\defined($env)) {
                 throw new RuntimeException(sprintf('Env var "%s" maps to undefined constant "%s".', $name, $env));
             }
 
-            return constant($name);
+            return \constant($env);
         }
 
         if ('base64' === $prefix) {
@@ -124,12 +124,12 @@ class EnvVarProcessor implements EnvVarProcessorInterface
         if ('json' === $prefix) {
             $env = json_decode($env, true);
 
-            if (JSON_ERROR_NONE !== json_last_error()) {
-                throw new RuntimeException(sprintf('Invalid JSON in env var "%s": '.json_last_error_msg(), $name));
+            if (\JSON_ERROR_NONE !== json_last_error()) {
+                throw new RuntimeException(sprintf('Invalid JSON in env var "%s": ', $name).json_last_error_msg());
             }
 
-            if (!is_array($env)) {
-                throw new RuntimeException(sprintf('Invalid JSON env var "%s": array expected, %s given.', $name, gettype($env)));
+            if (!\is_array($env)) {
+                throw new RuntimeException(sprintf('Invalid JSON env var "%s": array expected, "%s" given.', $name, \gettype($env)));
             }
 
             return $env;
@@ -142,7 +142,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
                 }
                 $value = $this->container->getParameter($match[1]);
                 if (!is_scalar($value)) {
-                    throw new RuntimeException(sprintf('Parameter "%s" found when resolving env var "%s" must be scalar, "%s" given.', $match[1], $name, gettype($value)));
+                    throw new RuntimeException(sprintf('Parameter "%s" found when resolving env var "%s" must be scalar, "%s" given.', $match[1], $name, \gettype($value)));
                 }
 
                 return $value;

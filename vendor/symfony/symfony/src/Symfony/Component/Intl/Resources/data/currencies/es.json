@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.22",
     "Names": {
         "ADP": [
             "ADP",
@@ -615,6 +614,10 @@
         ],
         "MRO": [
             "MRO",
+            "uguiya (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "uguiya"
         ],
         "MTL": [
@@ -635,7 +638,7 @@
         ],
         "MWK": [
             "MWK",
-            "kwacha malauí"
+            "kuacha malauí"
         ],
         "MXN": [
             "MXN",
@@ -843,6 +846,10 @@
         ],
         "STD": [
             "STD",
+            "dobra (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "dobra"
         ],
         "SUR": [
@@ -953,6 +960,10 @@
             "UYU",
             "peso uruguayo"
         ],
+        "UYW": [
+            "UYW",
+            "unidad previsional uruguayo"
+        ],
         "UZS": [
             "UZS",
             "sum"
@@ -963,6 +974,10 @@
         ],
         "VEF": [
             "VEF",
+            "bolívar venezolano (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "bolívar venezolano"
         ],
         "VND": [
@@ -1043,7 +1058,7 @@
         ],
         "ZMW": [
             "ZMW",
-            "kwacha zambiano"
+            "kuacha zambiano"
         ],
         "ZRN": [
             "ZRN",

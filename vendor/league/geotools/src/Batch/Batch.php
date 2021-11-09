@@ -12,9 +12,10 @@
 namespace League\Geotools\Batch;
 
 use Geocoder\Geocoder;
-use League\Geotools\Cache\CacheInterface;
+use Geocoder\ProviderAggregator;
 use League\Geotools\Coordinate\CoordinateInterface;
 use League\Geotools\Exception\InvalidArgumentException;
+use Psr\Cache\CacheItemPoolInterface;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\Promise\Deferred;
 
@@ -28,7 +29,7 @@ class Batch implements BatchInterface
     /**
      * The Geocoder instance to use.
      *
-     * @var Geocoder
+     * @var ProviderAggregator
      */
     protected $geocoder;
 
@@ -42,16 +43,16 @@ class Batch implements BatchInterface
     /**
      * The cache instance to use.
      *
-     * @var CacheInterface
+     * @var CacheItemPoolInterface
      */
     protected $cache;
 
     /**
      * Set the Geocoder instance to use.
      *
-     * @param Geocoder $geocoder The Geocoder instance to use.
+     * @param ProviderAggregator $geocoder The Geocoder instance to use.
      */
-    public function __construct(Geocoder $geocoder)
+    public function __construct(ProviderAggregator $geocoder)
     {
         $this->geocoder = $geocoder;
     }
@@ -66,8 +67,19 @@ class Batch implements BatchInterface
      */
     public function isCached($providerName, $query)
     {
-        return isset($this->cache) ? $this->cache->isCached($providerName, $query) : false;
+        if (null === $this->cache) {
+            return false;
+        }
+
+        $item = $this->cache->getItem($this->getCacheKey($providerName, $query));
+
+        if ($item->isHit()) {
+            return $item->get();
+        }
+
+        return false;
     }
+
 
     /**
      * Cache the BatchGeocoded object.
@@ -79,7 +91,10 @@ class Batch implements BatchInterface
     public function cache(BatchGeocoded $geocoded)
     {
         if (isset($this->cache)) {
-            $this->cache->cache($geocoded);
+            $key = $this->getCacheKey($geocoded->getProviderName(), $geocoded->getQuery());
+            $item = $this->cache->getItem($key);
+            $item->set($geocoded);
+            $this->cache->save($item);
         }
 
         return $geocoded;
@@ -262,10 +277,15 @@ class Batch implements BatchInterface
     /**
      * {@inheritDoc}
      */
-    public function setCache(CacheInterface $cache)
+    public function setCache(CacheItemPoolInterface $cache)
     {
         $this->cache = $cache;
 
         return $this;
+    }
+
+    private function getCacheKey(string $providerName, string $query): string
+    {
+        return sha1($providerName.'-'.$query);
     }
 }

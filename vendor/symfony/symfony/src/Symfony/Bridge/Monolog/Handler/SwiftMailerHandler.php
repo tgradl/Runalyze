@@ -60,6 +60,14 @@ class SwiftMailerHandler extends BaseSwiftMailerHandler
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function reset()
+    {
+        $this->flushMemorySpool();
+    }
+
+    /**
      * Flushes the mail queue if a memory spool is used.
      */
     private function flushMemorySpool()
@@ -75,7 +83,7 @@ class SwiftMailerHandler extends BaseSwiftMailerHandler
         }
 
         if (null === $this->transport) {
-            throw new \Exception('No transport available to flush mail queue');
+            throw new \Exception('No transport available to flush mail queue.');
         }
 
         $spool->flushQueue($this->transport);

@@ -15,6 +15,8 @@ use Monolog\Formatter\FormatterInterface;
 use Symfony\Bridge\Monolog\Formatter\ConsoleFormatter;
 use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\LogicException;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,7 +27,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
  */
 class ServerLogCommand extends Command
 {
-    private static $bgColor = array('black', 'blue', 'cyan', 'green', 'magenta', 'red', 'white', 'yellow');
+    private static $bgColor = ['black', 'blue', 'cyan', 'green', 'magenta', 'red', 'white', 'yellow'];
 
     private $el;
     private $handler;
@@ -39,7 +41,7 @@ class ServerLogCommand extends Command
         }
 
         // based on a symfony/symfony package, it crashes due a missing FormatterInterface from monolog/monolog
-        if (!class_exists(FormatterInterface::class)) {
+        if (!interface_exists(FormatterInterface::class)) {
             return false;
         }
 
@@ -78,26 +80,26 @@ EOF
         $filter = $input->getOption('filter');
         if ($filter) {
             if (!class_exists(ExpressionLanguage::class)) {
-                throw new \LogicException('Package "symfony/expression-language" is required to use the "filter" option.');
+                throw new LogicException('Package "symfony/expression-language" is required to use the "filter" option.');
             }
             $this->el = new ExpressionLanguage();
         }
 
         $this->handler = new ConsoleHandler($output);
 
-        $this->handler->setFormatter(new ConsoleFormatter(array(
+        $this->handler->setFormatter(new ConsoleFormatter([
             'format' => str_replace('\n', "\n", $input->getOption('format')),
             'date_format' => $input->getOption('date-format'),
             'colors' => $output->isDecorated(),
             'multiline' => OutputInterface::VERBOSITY_DEBUG <= $output->getVerbosity(),
-        )));
+        ]));
 
         if (false === strpos($host = $input->getOption('host'), '://')) {
             $host = 'tcp://'.$host;
         }
 
         if (!$socket = stream_socket_server($host, $errno, $errstr)) {
-            throw new \RuntimeException(sprintf('Server start failed on "%s": %s %s.', $host, $errstr, $errno));
+            throw new RuntimeException(sprintf('Server start failed on "%s": ', $host).$errstr.' '.$errno);
         }
 
         foreach ($this->getLogs($socket) as $clientId => $message) {
@@ -112,14 +114,14 @@ EOF
                 continue;
             }
 
-            $this->displayLog($input, $output, $clientId, $record);
+            $this->displayLog($output, $clientId, $record);
         }
     }
 
     private function getLogs($socket)
     {
-        $sockets = array((int) $socket => $socket);
-        $write = array();
+        $sockets = [(int) $socket => $socket];
+        $write = [];
 
         while (true) {
             $read = $sockets;
@@ -139,7 +141,7 @@ EOF
         }
     }
 
-    private function displayLog(InputInterface $input, OutputInterface $output, $clientId, array $record)
+    private function displayLog(OutputInterface $output, $clientId, array $record)
     {
         if ($this->handler->isHandling($record)) {
             if (isset($record['log_id'])) {

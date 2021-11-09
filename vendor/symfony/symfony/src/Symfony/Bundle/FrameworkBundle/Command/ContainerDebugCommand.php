@@ -13,15 +13,17 @@ namespace Symfony\Bundle\FrameworkBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Console\Helper\DescriptorHelper;
 use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
-use Symfony\Component\Config\FileLocator;
 
 /**
  * A console command for retrieving information about services.
@@ -45,7 +47,7 @@ class ContainerDebugCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setDefinition(array(
+            ->setDefinition([
                 new InputArgument('name', InputArgument::OPTIONAL, 'A service name (foo)'),
                 new InputOption('show-private', null, InputOption::VALUE_NONE, 'Used to show public *and* private services'),
                 new InputOption('show-arguments', null, InputOption::VALUE_NONE, 'Used to show arguments in services'),
@@ -56,7 +58,7 @@ class ContainerDebugCommand extends ContainerAwareCommand
                 new InputOption('types', null, InputOption::VALUE_NONE, 'Displays types (classes/interfaces) available in the container'),
                 new InputOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt, xml, json, or md)', 'txt'),
                 new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw description'),
-            ))
+            ])
             ->setDescription('Displays current services for an application')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays all configured <comment>public</comment> services:
@@ -109,26 +111,26 @@ EOF
         $object = $this->getContainerBuilder();
 
         if ($input->getOption('types')) {
-            $options = array('show_private' => true);
-            $options['filter'] = array($this, 'filterToServiceTypes');
+            $options = ['show_private' => true];
+            $options['filter'] = [$this, 'filterToServiceTypes'];
         } elseif ($input->getOption('parameters')) {
-            $parameters = array();
+            $parameters = [];
             foreach ($object->getParameterBag()->all() as $k => $v) {
                 $parameters[$k] = $object->resolveEnvPlaceholders($v);
             }
             $object = new ParameterBag($parameters);
-            $options = array();
+            $options = [];
         } elseif ($parameter = $input->getOption('parameter')) {
-            $options = array('parameter' => $parameter);
+            $options = ['parameter' => $parameter];
         } elseif ($input->getOption('tags')) {
-            $options = array('group_by' => 'tags', 'show_private' => $input->getOption('show-private'));
+            $options = ['group_by' => 'tags', 'show_private' => $input->getOption('show-private')];
         } elseif ($tag = $input->getOption('tag')) {
-            $options = array('tag' => $tag, 'show_private' => $input->getOption('show-private'));
+            $options = ['tag' => $tag, 'show_private' => $input->getOption('show-private')];
         } elseif ($name = $input->getArgument('name')) {
             $name = $this->findProperServiceName($input, $errorIo, $object, $name);
-            $options = array('id' => $name);
+            $options = ['id' => $name];
         } else {
-            $options = array('show_private' => $input->getOption('show-private'));
+            $options = ['show_private' => $input->getOption('show-private')];
         }
 
         $helper = new DescriptorHelper();
@@ -136,6 +138,7 @@ EOF
         $options['show_arguments'] = $input->getOption('show-arguments');
         $options['raw_text'] = $input->getOption('raw');
         $options['output'] = $io;
+        $options['is_debug'] = $this->getApplication()->getKernel()->isDebug();
         $helper->describe($io, $object, $options);
 
         if (!$input->getArgument('name') && !$input->getOption('tag') && !$input->getOption('parameter') && $input->isInteractive()) {
@@ -156,7 +159,7 @@ EOF
      */
     protected function validateInput(InputInterface $input)
     {
-        $options = array('tags', 'tag', 'parameters', 'parameter');
+        $options = ['tags', 'tag', 'parameters', 'parameter'];
 
         $optionsCount = 0;
         foreach ($options as $option) {
@@ -167,9 +170,9 @@ EOF
 
         $name = $input->getArgument('name');
         if ((null !== $name) && ($optionsCount > 0)) {
-            throw new \InvalidArgumentException('The options tags, tag, parameters & parameter can not be combined with the service name argument.');
+            throw new InvalidArgumentException('The options tags, tag, parameters & parameter can not be combined with the service name argument.');
         } elseif ((null === $name) && $optionsCount > 1) {
-            throw new \InvalidArgumentException('The options tags, tag, parameters & parameter can not be combined together.');
+            throw new InvalidArgumentException('The options tags, tag, parameters & parameter can not be combined together.');
         }
     }
 
@@ -189,12 +192,15 @@ EOF
         $kernel = $this->getApplication()->getKernel();
 
         if (!$kernel->isDebug() || !(new ConfigCache($kernel->getContainer()->getParameter('debug.container.dump'), true))->isFresh()) {
-            $buildContainer = \Closure::bind(function () { return $this->buildContainer(); }, $kernel, get_class($kernel));
+            $buildContainer = \Closure::bind(function () { return $this->buildContainer(); }, $kernel, \get_class($kernel));
             $container = $buildContainer();
-            $container->getCompilerPassConfig()->setRemovingPasses(array());
+            $container->getCompilerPassConfig()->setRemovingPasses([]);
+            $container->getCompilerPassConfig()->setAfterRemovingPasses([]);
             $container->compile();
         } else {
             (new XmlFileLoader($container = new ContainerBuilder(), new FileLocator()))->load($kernel->getContainer()->getParameter('debug.container.dump'));
+            $locatorPass = new ServiceLocatorTagPass();
+            $locatorPass->process($container);
         }
 
         return $this->containerBuilder = $container;
@@ -208,10 +214,10 @@ EOF
 
         $matchingServices = $this->findServiceIdsContaining($builder, $name);
         if (empty($matchingServices)) {
-            throw new \InvalidArgumentException(sprintf('No services found that match "%s".', $name));
+            throw new InvalidArgumentException(sprintf('No services found that match "%s".', $name));
         }
 
-        $default = 1 === count($matchingServices) ? $matchingServices[0] : null;
+        $default = 1 === \count($matchingServices) ? $matchingServices[0] : null;
 
         return $io->choice('Select one of the following services to display its information', $matchingServices, $default);
     }
@@ -219,7 +225,7 @@ EOF
     private function findServiceIdsContaining(ContainerBuilder $builder, $name)
     {
         $serviceIds = $builder->getServiceIds();
-        $foundServiceIds = array();
+        $foundServiceIds = [];
         foreach ($serviceIds as $serviceId) {
             if (false === stripos($serviceId, $name)) {
                 continue;

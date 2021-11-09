@@ -21,21 +21,20 @@ use Symfony\Component\Workflow\SupportStrategy\SupportStrategyInterface;
  */
 class Registry
 {
-    private $workflows = array();
+    private $workflows = [];
 
     /**
-     * @param Workflow                        $workflow
      * @param string|SupportStrategyInterface $supportStrategy
      */
     public function add(Workflow $workflow, $supportStrategy)
     {
         if (!$supportStrategy instanceof SupportStrategyInterface) {
-            @trigger_error('Support of class name string was deprecated after version 3.2 and won\'t work anymore in 4.0.', E_USER_DEPRECATED);
+            @trigger_error('Support of class name string was deprecated after version 3.2 and won\'t work anymore in 4.0.', \E_USER_DEPRECATED);
 
             $supportStrategy = new ClassInstanceSupportStrategy($supportStrategy);
         }
 
-        $this->workflows[] = array($workflow, $supportStrategy);
+        $this->workflows[] = [$workflow, $supportStrategy];
     }
 
     /**
@@ -58,12 +57,19 @@ class Registry
         }
 
         if (!$matched) {
-            throw new InvalidArgumentException(sprintf('Unable to find a workflow for class "%s".', get_class($subject)));
+            throw new InvalidArgumentException(sprintf('Unable to find a workflow for class "%s".', \get_class($subject)));
         }
 
         return $matched;
     }
 
+    /**
+     * @param SupportStrategyInterface $supportStrategy
+     * @param object                   $subject
+     * @param string|null              $workflowName
+     *
+     * @return bool
+     */
     private function supports(Workflow $workflow, $supportStrategy, $subject, $workflowName)
     {
         if (null !== $workflowName && $workflowName !== $workflow->getName()) {

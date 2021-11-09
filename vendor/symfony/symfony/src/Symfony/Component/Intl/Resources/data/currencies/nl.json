@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.1",
     "Names": {
         "ADP": [
             "ADP",
@@ -263,7 +262,7 @@
         ],
         "CNH": [
             "CNH",
-            "Chinese renminbi (offshore)"
+            "Chinese yuan (offshore)"
         ],
         "CNX": [
             "CNX",
@@ -271,7 +270,7 @@
         ],
         "CNY": [
             "CN¥",
-            "Chinese Yuan"
+            "Chinese yuan"
         ],
         "COP": [
             "COP",
@@ -683,6 +682,10 @@
         ],
         "MRO": [
             "MRO",
+            "Mauritaanse ouguiya (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "Mauritaanse ouguiya"
         ],
         "MTL": [
@@ -915,6 +918,10 @@
         ],
         "STD": [
             "STD",
+            "Santomese dobra (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "Santomese dobra"
         ],
         "SUR": [
@@ -1025,6 +1032,10 @@
             "UYU",
             "Uruguayaanse peso"
         ],
+        "UYW": [
+            "UYW",
+            "Uruguayaanse nominale salarisindexeenheid"
+        ],
         "UZS": [
             "UZS",
             "Oezbeekse sum"
@@ -1035,6 +1046,10 @@
         ],
         "VEF": [
             "VEF",
+            "Venezolaanse bolivar (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Venezolaanse bolivar"
         ],
         "VND": [

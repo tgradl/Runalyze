@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.5",
     "Names": {
         "ADP": [
             "ADP",
@@ -203,7 +202,7 @@
         ],
         "BTN": [
             "BTN",
-            "Bhutan Ngultrumu"
+            "Butan Ngultrumu"
         ],
         "BUK": [
             "BUK",
@@ -311,7 +310,7 @@
         ],
         "CZK": [
             "CZK",
-            "Çek Cumhuriyeti Korunası"
+            "Çek Korunası"
         ],
         "DDM": [
             "DDM",
@@ -479,7 +478,7 @@
         ],
         "IDR": [
             "IDR",
-            "Endonezya Rupiahı"
+            "Endonezya Rupisi"
         ],
         "IEP": [
             "IEP",
@@ -683,7 +682,11 @@
         ],
         "MRO": [
             "MRO",
-            "Moritanya Ouguiyası"
+            "Moritanya Ugiyası (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
+            "Moritanya Ugiyası"
         ],
         "MTL": [
             "MTL",
@@ -915,7 +918,11 @@
         ],
         "STD": [
             "STD",
-            "São Tomé ve Príncipe Dobrası"
+            "São Tomé ve Príncipe Dobrası (1977–2017)"
+        ],
+        "STN": [
+            "STN",
+            "Sao Tome ve Principe Dobrası"
         ],
         "SUR": [
             "SUR",
@@ -1036,6 +1043,10 @@
         ],
         "VEF": [
             "VEF",
+            "Venezuela Bolivarı (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Venezuela Bolivarı"
         ],
         "VND": [
@@ -1056,7 +1067,7 @@
         ],
         "XAF": [
             "FCFA",
-            "CFA Frangı BEAC"
+            "Orta Afrika CFA Frangı"
         ],
         "XCD": [
             "EC$",
@@ -1076,7 +1087,7 @@
         ],
         "XOF": [
             "CFA",
-            "CFA Frangı BCEAO"
+            "Batı Afrika CFA Frangı"
         ],
         "XPF": [
             "CFPF",

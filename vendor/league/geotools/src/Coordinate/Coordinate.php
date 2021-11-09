@@ -11,7 +11,7 @@
 
 namespace League\Geotools\Coordinate;
 
-use Geocoder\Model\Address;
+use Geocoder\Location;
 use League\Geotools\Exception\InvalidArgumentException;
 
 /**
@@ -44,18 +44,27 @@ class Coordinate implements CoordinateInterface, \JsonSerializable
 
 
     /**
+     * The precision to use to compare big numbers
+     *
+     * @var integer
+     */
+    private $precision = 8;
+
+    /**
      * Set the latitude and the longitude of the coordinates into an selected ellipsoid.
      *
-     * @param Address|array|string         $coordinates The coordinates.
+     * @param Location|array|string         $coordinates The coordinates.
      * @param Ellipsoid                    $ellipsoid   The selected ellipsoid (WGS84 by default).
      *
      * @throws InvalidArgumentException
      */
     public function __construct($coordinates, Ellipsoid $ellipsoid = null)
     {
-        if ($coordinates instanceof Address) {
-            $this->setLatitude($coordinates->getLatitude());
-            $this->setLongitude($coordinates->getLongitude());
+        if ($coordinates instanceof Location) {
+            if (null !== $locationCoordinates = $coordinates->getCoordinates()) {
+                $this->setLatitude($locationCoordinates->getLatitude());
+                $this->setLongitude($locationCoordinates->getLongitude());
+            }
         } elseif (is_array($coordinates) && 2 === count($coordinates)) {
             $this->setLatitude($coordinates[0]);
             $this->setLongitude($coordinates[1]);
@@ -156,6 +165,26 @@ class Coordinate implements CoordinateInterface, \JsonSerializable
     }
 
     /**
+     * @return integer
+     */
+    public function getPrecision()
+    {
+        return $this->precision;
+    }
+
+    /**
+     * @param  integer $precision
+     * @return $this
+     */
+    public function setPrecision($precision)
+    {
+        $this->precision = $precision;
+
+        return $this;
+    }
+
+
+    /**
      * Converts a valid and acceptable geographic coordinates to decimal degrees coordinate.
      *
      * @param string $coordinates A valid and acceptable geographic coordinates.
@@ -177,7 +206,9 @@ class Coordinate implements CoordinateInterface, \JsonSerializable
         if (preg_match('/(\-?[0-9]{1,2})\D+([0-9]{1,2}\.?\d*)[, ] ?(\-?[0-9]{1,3})\D+([0-9]{1,2}\.?\d*)$/i',
             $coordinates, $match)) {
             return array(
-                $match[1] + $match[2] / 60,
+                $match[1] < 0
+                    ? $match[1] - $match[2] / 60
+                    : $match[1] + $match[2] / 60,
                 $match[3] < 0
                     ? $match[3] - $match[4] / 60
                     : $match[3] + $match[4] / 60
@@ -231,5 +262,14 @@ class Coordinate implements CoordinateInterface, \JsonSerializable
     public function jsonSerialize()
     {
         return [$this->latitude, $this->longitude];
+    }
+
+    /**
+     * Returns a boolean determining coordinates equality
+     * @param  Coordinate  $coordinate
+     * @return boolean
+     */
+    public function isEqual(Coordinate $coordinate) {
+        return bccomp($this->latitude, $coordinate->getLatitude(), $this->getPrecision()) === 0 && bccomp($this->longitude, $coordinate->getLongitude(), $this->getPrecision()) === 0;
     }
 }

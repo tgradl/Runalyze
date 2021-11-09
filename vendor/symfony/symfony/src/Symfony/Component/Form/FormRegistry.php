@@ -12,9 +12,9 @@
 namespace Symfony\Component\Form;
 
 use Symfony\Component\Form\Exception\ExceptionInterface;
+use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\Exception\LogicException;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
-use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 /**
  * The central registry of the Form component.
@@ -26,14 +26,14 @@ class FormRegistry implements FormRegistryInterface
     /**
      * Extensions.
      *
-     * @var FormExtensionInterface[] An array of FormExtensionInterface
+     * @var FormExtensionInterface[]
      */
-    private $extensions = array();
+    private $extensions = [];
 
     /**
-     * @var FormTypeInterface[]
+     * @var ResolvedFormTypeInterface[]
      */
-    private $types = array();
+    private $types = [];
 
     /**
      * @var FormTypeGuesserInterface|false|null
@@ -45,7 +45,7 @@ class FormRegistry implements FormRegistryInterface
      */
     private $resolvedTypeFactory;
 
-    private $checkedTypes = array();
+    private $checkedTypes = [];
 
     /**
      * @param FormExtensionInterface[]         $extensions          An array of FormExtensionInterface
@@ -82,11 +82,14 @@ class FormRegistry implements FormRegistryInterface
 
             if (!$type) {
                 // Support fully-qualified class names
-                if (class_exists($name) && in_array('Symfony\Component\Form\FormTypeInterface', class_implements($name))) {
-                    $type = new $name();
-                } else {
-                    throw new InvalidArgumentException(sprintf('Could not load type "%s"', $name));
+                if (!class_exists($name)) {
+                    throw new InvalidArgumentException(sprintf('Could not load type "%s": class does not exist.', $name));
                 }
+                if (!is_subclass_of($name, 'Symfony\Component\Form\FormTypeInterface')) {
+                    throw new InvalidArgumentException(sprintf('Could not load type "%s": class does not implement "Symfony\Component\Form\FormTypeInterface".', $name));
+                }
+
+                $type = new $name();
             }
 
             $this->types[$name] = $this->resolveType($type);
@@ -105,12 +108,12 @@ class FormRegistry implements FormRegistryInterface
      */
     private function resolveType(FormTypeInterface $type)
     {
-        $typeExtensions = array();
+        $typeExtensions = [];
         $parentType = $type->getParent();
-        $fqcn = get_class($type);
+        $fqcn = \get_class($type);
 
         if (isset($this->checkedTypes[$fqcn])) {
-            $types = implode(' > ', array_merge(array_keys($this->checkedTypes), array($fqcn)));
+            $types = implode(' > ', array_merge(array_keys($this->checkedTypes), [$fqcn]));
             throw new LogicException(sprintf('Circular reference detected for form type "%s" (%s).', $fqcn, $types));
         }
 
@@ -158,7 +161,7 @@ class FormRegistry implements FormRegistryInterface
     public function getTypeGuesser()
     {
         if (false === $this->guesser) {
-            $guessers = array();
+            $guessers = [];
 
             foreach ($this->extensions as $extension) {
                 $guesser = $extension->getTypeGuesser();

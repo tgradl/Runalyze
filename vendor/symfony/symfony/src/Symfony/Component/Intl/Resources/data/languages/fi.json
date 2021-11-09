@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.67",
     "Names": {
         "aa": "afar",
         "ab": "abhaasi",
@@ -30,6 +29,7 @@
         "aro": "araona",
         "arp": "arapaho",
         "arq": "algerianarabia",
+        "ars": "arabia – najd",
         "arw": "arawak",
         "ary": "marokonarabia",
         "arz": "egyptinarabia",
@@ -87,6 +87,7 @@
         "car": "karibi",
         "cay": "cayuga",
         "cch": "atsam",
+        "ccp": "chakma",
         "ce": "tšetšeeni",
         "ceb": "cebuano",
         "cgg": "kiga",
@@ -159,6 +160,7 @@
         "ewo": "ewondo",
         "ext": "extremadura",
         "fa": "persia",
+        "fa_AF": "dari",
         "fan": "fang",
         "fat": "fanti",
         "ff": "fulani",

@@ -11,22 +11,24 @@
 
 namespace Symfony\Bundle\FrameworkBundle\Controller;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry as LegacyManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
 
 /**
  * Common features needed in controllers.
@@ -80,7 +82,7 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function generateUrl($route, $parameters = array(), $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH)
+    protected function generateUrl($route, $parameters = [], $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH)
     {
         return $this->container->get('router')->generate($route, $parameters, $referenceType);
     }
@@ -96,7 +98,7 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function forward($controller, array $path = array(), array $query = array())
+    protected function forward($controller, array $path = [], array $query = [])
     {
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $path['_forwarded'] = $request->attributes;
@@ -132,7 +134,7 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function redirectToRoute($route, array $parameters = array(), $status = 302)
+    protected function redirectToRoute($route, array $parameters = [], $status = 302)
     {
         return $this->redirect($this->generateUrl($route, $parameters), $status);
     }
@@ -149,12 +151,12 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function json($data, $status = 200, $headers = array(), $context = array())
+    protected function json($data, $status = 200, $headers = [], $context = [])
     {
         if ($this->container->has('serializer')) {
-            $json = $this->container->get('serializer')->serialize($data, 'json', array_merge(array(
+            $json = $this->container->get('serializer')->serialize($data, 'json', array_merge([
                 'json_encode_options' => JsonResponse::DEFAULT_ENCODING_OPTIONS,
-            ), $context));
+            ], $context));
 
             return new JsonResponse($json, $status, $headers, true);
         }
@@ -185,7 +187,7 @@ trait ControllerTrait
      * Adds a flash message to the current session for type.
      *
      * @param string $type    The type
-     * @param string $message The message
+     * @param mixed  $message The message
      *
      * @throws \LogicException
      *
@@ -194,7 +196,7 @@ trait ControllerTrait
     protected function addFlash($type, $message)
     {
         if (!$this->container->has('session')) {
-            throw new \LogicException('You can not use the addFlash method if sessions are disabled.');
+            throw new \LogicException('You can not use the addFlash method if sessions are disabled. Enable them in "config/packages/framework.yaml".');
         }
 
         $this->container->get('session')->getFlashBag()->add($type, $message);
@@ -215,7 +217,7 @@ trait ControllerTrait
     protected function isGranted($attributes, $subject = null)
     {
         if (!$this->container->has('security.authorization_checker')) {
-            throw new \LogicException('The SecurityBundle is not registered in your application.');
+            throw new \LogicException('The SecurityBundle is not registered in your application. Try running "composer require symfony/security-bundle".');
         }
 
         return $this->container->get('security.authorization_checker')->isGranted($attributes, $subject);
@@ -254,14 +256,14 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function renderView($view, array $parameters = array())
+    protected function renderView($view, array $parameters = [])
     {
         if ($this->container->has('templating')) {
             return $this->container->get('templating')->render($view, $parameters);
         }
 
         if (!$this->container->has('twig')) {
-            throw new \LogicException('You can not use the "renderView" method if the Templating Component or the Twig Bundle are not available.');
+            throw new \LogicException('You can not use the "renderView" method if the Templating Component or the Twig Bundle are not available. Try running "composer require symfony/twig-bundle".');
         }
 
         return $this->container->get('twig')->render($view, $parameters);
@@ -278,14 +280,14 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function render($view, array $parameters = array(), Response $response = null)
+    protected function render($view, array $parameters = [], Response $response = null)
     {
         if ($this->container->has('templating')) {
             $content = $this->container->get('templating')->render($view, $parameters);
         } elseif ($this->container->has('twig')) {
             $content = $this->container->get('twig')->render($view, $parameters);
         } else {
-            throw new \LogicException('You can not use the "render" method if the Templating Component or the Twig Bundle are not available.');
+            throw new \LogicException('You can not use the "render" method if the Templating Component or the Twig Bundle are not available. Try running "composer require symfony/twig-bundle".');
         }
 
         if (null === $response) {
@@ -308,7 +310,7 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function stream($view, array $parameters = array(), StreamedResponse $response = null)
+    protected function stream($view, array $parameters = [], StreamedResponse $response = null)
     {
         if ($this->container->has('templating')) {
             $templating = $this->container->get('templating');
@@ -323,7 +325,7 @@ trait ControllerTrait
                 $twig->display($view, $parameters);
             };
         } else {
-            throw new \LogicException('You can not use the "stream" method if the Templating Component or the Twig Bundle are not available.');
+            throw new \LogicException('You can not use the "stream" method if the Templating Component or the Twig Bundle are not available. Try running "composer require symfony/twig-bundle".');
         }
 
         if (null === $response) {
@@ -366,10 +368,16 @@ trait ControllerTrait
      *
      * @return AccessDeniedException
      *
+     * @throws \LogicException If the Security component is not available
+     *
      * @final since version 3.4
      */
     protected function createAccessDeniedException($message = 'Access Denied.', \Exception $previous = null)
     {
+        if (!class_exists(AccessDeniedException::class)) {
+            throw new \LogicException('You can not use the "createAccessDeniedException" method if the Security component is not available. Try running "composer require symfony/security-bundle".');
+        }
+
         return new AccessDeniedException($message, $previous);
     }
 
@@ -384,7 +392,7 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function createForm($type, $data = null, array $options = array())
+    protected function createForm($type, $data = null, array $options = [])
     {
         return $this->container->get('form.factory')->create($type, $data, $options);
     }
@@ -399,7 +407,7 @@ trait ControllerTrait
      *
      * @final since version 3.4
      */
-    protected function createFormBuilder($data = null, array $options = array())
+    protected function createFormBuilder($data = null, array $options = [])
     {
         return $this->container->get('form.factory')->createBuilder(FormType::class, $data, $options);
     }
@@ -407,7 +415,7 @@ trait ControllerTrait
     /**
      * Shortcut to return the Doctrine Registry service.
      *
-     * @return ManagerRegistry
+     * @return ManagerRegistry|LegacyManagerRegistry
      *
      * @throws \LogicException If DoctrineBundle is not available
      *
@@ -416,7 +424,7 @@ trait ControllerTrait
     protected function getDoctrine()
     {
         if (!$this->container->has('doctrine')) {
-            throw new \LogicException('The DoctrineBundle is not registered in your application.');
+            throw new \LogicException('The DoctrineBundle is not registered in your application. Try running "composer require symfony/orm-pack".');
         }
 
         return $this->container->get('doctrine');
@@ -425,7 +433,7 @@ trait ControllerTrait
     /**
      * Get a user from the Security Token Storage.
      *
-     * @return mixed
+     * @return UserInterface|object|null
      *
      * @throws \LogicException If SecurityBundle is not available
      *
@@ -436,16 +444,16 @@ trait ControllerTrait
     protected function getUser()
     {
         if (!$this->container->has('security.token_storage')) {
-            throw new \LogicException('The SecurityBundle is not registered in your application.');
+            throw new \LogicException('The SecurityBundle is not registered in your application. Try running "composer require symfony/security-bundle".');
         }
 
         if (null === $token = $this->container->get('security.token_storage')->getToken()) {
-            return;
+            return null;
         }
 
-        if (!is_object($user = $token->getUser())) {
+        if (!\is_object($user = $token->getUser())) {
             // e.g. anonymous authentication
-            return;
+            return null;
         }
 
         return $user;
@@ -464,7 +472,7 @@ trait ControllerTrait
     protected function isCsrfTokenValid($id, $token)
     {
         if (!$this->container->has('security.csrf.token_manager')) {
-            throw new \LogicException('CSRF protection is not enabled in your application.');
+            throw new \LogicException('CSRF protection is not enabled in your application. Enable it with the "csrf_protection" key in "config/packages/framework.yaml".');
         }
 
         return $this->container->get('security.csrf.token_manager')->isTokenValid(new CsrfToken($id, $token));

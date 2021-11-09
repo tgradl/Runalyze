@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.5",
     "Names": {
         "AED": [
             "AED",
@@ -175,7 +174,7 @@
         ],
         "ERN": [
             "ERN",
-            "ERN"
+            "Nakfa Eritrea"
         ],
         "ETB": [
             "ETB",
@@ -361,6 +360,10 @@
             "MGA",
             "Ariary Malagasy"
         ],
+        "MGF": [
+            "MGF",
+            "Franc Malagasy"
+        ],
         "MKD": [
             "MKD",
             "Denar Macedonia"
@@ -379,6 +382,10 @@
         ],
         "MRO": [
             "MRO",
+            "Ouguiya Mauritania (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "Ouguiya Mauritania"
         ],
         "MUR": [
@@ -400,6 +407,14 @@
         "MYR": [
             "RM",
             "Ringgit Malaysia"
+        ],
+        "MZE": [
+            "MZE",
+            "Escudo Mozambique"
+        ],
+        "MZM": [
+            "MZM",
+            "Metical Mozambique (1980–2006)"
         ],
         "MZN": [
             "MZN",
@@ -465,6 +480,10 @@
             "QAR",
             "Rial Qatar"
         ],
+        "RHD": [
+            "RHD",
+            "Dolar Rhodesia"
+        ],
         "RON": [
             "RON",
             "Leu Romania"
@@ -527,6 +546,10 @@
         ],
         "STD": [
             "STD",
+            "Dobra Sao Tome dan Principe (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "Dobra Sao Tome dan Principe"
         ],
         "SYP": [
@@ -577,6 +600,10 @@
             "UAH",
             "Hryvnia Ukraine"
         ],
+        "UGS": [
+            "UGS",
+            "Shilling Uganda (1966–1987)"
+        ],
         "UGX": [
             "UGX",
             "Syiling Uganda"
@@ -595,6 +622,10 @@
         ],
         "VEF": [
             "VEF",
+            "Bolivar Venezuela (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Bolivar Venezuela"
         ],
         "VND": [
@@ -640,6 +671,18 @@
         "ZMW": [
             "ZMW",
             "Kwacha Zambia"
+        ],
+        "ZWD": [
+            "ZWD",
+            "Dolar Zimbabwe (1980–2008)"
+        ],
+        "ZWL": [
+            "ZWL",
+            "Dolar Zimbabwe (2009)"
+        ],
+        "ZWR": [
+            "ZWR",
+            "Dolar Zimbabwe (2008)"
         ]
     }
 }

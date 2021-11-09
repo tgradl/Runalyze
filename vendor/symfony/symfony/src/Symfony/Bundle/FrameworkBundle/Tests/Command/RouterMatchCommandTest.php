@@ -12,39 +12,39 @@
 namespace Symfony\Bundle\FrameworkBundle\Tests\Command;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Command\RouterDebugCommand;
+use Symfony\Bundle\FrameworkBundle\Command\RouterMatchCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Bundle\FrameworkBundle\Command\RouterMatchCommand;
-use Symfony\Bundle\FrameworkBundle\Command\RouterDebugCommand;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\RequestContext;
 
 class RouterMatchCommandTest extends TestCase
 {
     public function testWithMatchPath()
     {
         $tester = $this->createCommandTester();
-        $ret = $tester->execute(array('path_info' => '/foo', 'foo'), array('decorated' => false));
+        $ret = $tester->execute(['path_info' => '/foo', 'foo'], ['decorated' => false]);
 
         $this->assertEquals(0, $ret, 'Returns 0 in case of success');
-        $this->assertContains('Route Name   | foo', $tester->getDisplay());
+        $this->assertStringContainsString('Route Name   | foo', $tester->getDisplay());
     }
 
     public function testWithNotMatchPath()
     {
         $tester = $this->createCommandTester();
-        $ret = $tester->execute(array('path_info' => '/test', 'foo'), array('decorated' => false));
+        $ret = $tester->execute(['path_info' => '/test', 'foo'], ['decorated' => false]);
 
         $this->assertEquals(1, $ret, 'Returns 1 in case of failure');
-        $this->assertContains('None of the routes match the path "/test"', $tester->getDisplay());
+        $this->assertStringContainsString('None of the routes match the path "/test"', $tester->getDisplay());
     }
 
     /**
      * @group legacy
-     * @expectedDeprecation Symfony\Bundle\FrameworkBundle\Command\RouterMatchCommand::__construct() expects an instance of "Symfony\Component\Routing\RouterInterface" as first argument since version 3.4. Not passing it is deprecated and will throw a TypeError in 4.0.
-     * @expectedDeprecation Symfony\Bundle\FrameworkBundle\Command\RouterDebugCommand::__construct() expects an instance of "Symfony\Component\Routing\RouterInterface" as first argument since version 3.4. Not passing it is deprecated and will throw a TypeError in 4.0.
+     * @expectedDeprecation Symfony\Bundle\FrameworkBundle\Command\RouterMatchCommand::__construct() expects an instance of "Symfony\Component\Routing\RouterInterface" as first argument since Symfony 3.4. Not passing it is deprecated and will throw a TypeError in 4.0.
+     * @expectedDeprecation Symfony\Bundle\FrameworkBundle\Command\RouterDebugCommand::__construct() expects an instance of "Symfony\Component\Routing\RouterInterface" as first argument since Symfony 3.4. Not passing it is deprecated and will throw a TypeError in 4.0.
      */
     public function testLegacyMatchCommand()
     {
@@ -54,9 +54,9 @@ class RouterMatchCommandTest extends TestCase
 
         $tester = new CommandTester($application->find('router:match'));
 
-        $tester->execute(array('path_info' => '/'));
+        $tester->execute(['path_info' => '/']);
 
-        $this->assertContains('None of the routes match the path "/"', $tester->getDisplay());
+        $this->assertStringContainsString('None of the routes match the path "/"', $tester->getDisplay());
     }
 
     /**
@@ -80,11 +80,11 @@ class RouterMatchCommandTest extends TestCase
         $router
             ->expects($this->any())
             ->method('getRouteCollection')
-            ->will($this->returnValue($routeCollection));
+            ->willReturn($routeCollection);
         $router
             ->expects($this->any())
             ->method('getContext')
-            ->will($this->returnValue($requestContext));
+            ->willReturn($requestContext);
 
         return $router;
     }
@@ -95,13 +95,9 @@ class RouterMatchCommandTest extends TestCase
         $container
             ->expects($this->atLeastOnce())
             ->method('has')
-            ->will($this->returnCallback(function ($id) {
-                if ('console.command_loader' === $id) {
-                    return false;
-                }
-
-                return true;
-            }))
+            ->willReturnCallback(function ($id) {
+                return 'console.command_loader' !== $id;
+            })
         ;
         $container
             ->expects($this->any())
@@ -119,7 +115,7 @@ class RouterMatchCommandTest extends TestCase
         $kernel
             ->expects($this->once())
             ->method('getBundles')
-            ->willReturn(array())
+            ->willReturn([])
         ;
 
         return $kernel;

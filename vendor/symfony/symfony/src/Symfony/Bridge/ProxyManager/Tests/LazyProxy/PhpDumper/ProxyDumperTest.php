@@ -13,7 +13,9 @@ namespace Symfony\Bridge\ProxyManager\Tests\LazyProxy\PhpDumper;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\ProxyManager\LazyProxy\PhpDumper\ProxyDumper;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\LazyProxy\PhpDumper\DumperInterface;
 
 /**
  * Tests for {@see \Symfony\Bridge\ProxyManager\LazyProxy\PhpDumper\ProxyDumper}.
@@ -38,8 +40,7 @@ class ProxyDumperTest extends TestCase
     /**
      * @dataProvider getProxyCandidates
      *
-     * @param Definition $definition
-     * @param bool       $expected
+     * @param bool $expected
      */
     public function testIsProxyCandidate(Definition $definition, $expected)
     {
@@ -61,6 +62,14 @@ class ProxyDumperTest extends TestCase
         );
     }
 
+    public function testDeterministicProxyCode()
+    {
+        $definition = new Definition(__CLASS__);
+        $definition->setLazy(true);
+
+        $this->assertSame($this->dumper->getProxyCode($definition), $this->dumper->getProxyCode($definition));
+    }
+
     public function testGetProxyFactoryCode()
     {
         $definition = new Definition(__CLASS__);
@@ -73,6 +82,34 @@ class ProxyDumperTest extends TestCase
             '%A$wrappedInstance = $this->getFoo2Service(false);%w$proxy->setProxyInitializer(null);%A',
             $code
         );
+    }
+
+    /**
+     * @dataProvider getPrivatePublicDefinitions
+     */
+    public function testCorrectAssigning(Definition $definition, $access)
+    {
+        $definition->setLazy(true);
+
+        $code = $this->dumper->getProxyFactoryCode($definition, 'foo', '$this->getFoo2Service(false)');
+
+        $this->assertStringMatchesFormat('%A$this->'.$access.'[\'foo\'] = %A', $code);
+    }
+
+    public function getPrivatePublicDefinitions()
+    {
+        return [
+            [
+                (new Definition(__CLASS__))
+                    ->setPublic(false),
+                method_exists(ContainerBuilder::class, 'addClassResource') ? 'services' : 'privates',
+            ],
+            [
+                (new Definition(__CLASS__))
+                    ->setPublic(true),
+                'services',
+            ],
+        ];
     }
 
     /**
@@ -97,12 +134,13 @@ class ProxyDumperTest extends TestCase
      */
     public function getProxyCandidates()
     {
-        $definitions = array(
-            array(new Definition(__CLASS__), true),
-            array(new Definition('stdClass'), true),
-            array(new Definition(uniqid('foo', true)), false),
-            array(new Definition(), false),
-        );
+        $definitions = [
+            [new Definition(__CLASS__), true],
+            [new Definition('stdClass'), true],
+            [new Definition(DumperInterface::class), true],
+            [new Definition(uniqid('foo', true)), false],
+            [new Definition(), false],
+        ];
 
         array_map(
             function ($definition) {

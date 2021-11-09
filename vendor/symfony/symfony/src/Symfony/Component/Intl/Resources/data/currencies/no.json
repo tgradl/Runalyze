@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.5",
     "Names": {
         "ADP": [
             "ADP",
@@ -639,7 +638,7 @@
         ],
         "MCF": [
             "MCF",
-            "MCF"
+            "monegaskiske franc"
         ],
         "MDC": [
             "MDC",
@@ -683,6 +682,10 @@
         ],
         "MRO": [
             "MRO",
+            "mauritanske ouguiya (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "mauritanske ouguiya"
         ],
         "MTL": [
@@ -915,6 +918,10 @@
         ],
         "STD": [
             "STD",
+            "saotomesiske dobra (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "saotomesiske dobra"
         ],
         "SUR": [
@@ -1035,6 +1042,10 @@
         ],
         "VEF": [
             "VEF",
+            "venezuelanske bolivar (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "venezuelanske bolivar"
         ],
         "VND": [

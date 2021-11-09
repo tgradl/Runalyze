@@ -20,8 +20,8 @@ use Symfony\Component\Form\Exception\InvalidArgumentException;
  */
 class PreloadedExtension implements FormExtensionInterface
 {
-    private $types = array();
-    private $typeExtensions = array();
+    private $types = [];
+    private $typeExtensions = [];
     private $typeGuesser;
 
     /**
@@ -37,7 +37,7 @@ class PreloadedExtension implements FormExtensionInterface
         $this->typeGuesser = $typeGuesser;
 
         foreach ($types as $type) {
-            $this->types[get_class($type)] = $type;
+            $this->types[\get_class($type)] = $type;
         }
     }
 
@@ -47,7 +47,7 @@ class PreloadedExtension implements FormExtensionInterface
     public function getType($name)
     {
         if (!isset($this->types[$name])) {
-            throw new InvalidArgumentException(sprintf('The type "%s" can not be loaded by this extension', $name));
+            throw new InvalidArgumentException(sprintf('The type "%s" can not be loaded by this extension.', $name));
         }
 
         return $this->types[$name];
@@ -68,7 +68,7 @@ class PreloadedExtension implements FormExtensionInterface
     {
         return isset($this->typeExtensions[$name])
             ? $this->typeExtensions[$name]
-            : array();
+            : [];
     }
 
     /**

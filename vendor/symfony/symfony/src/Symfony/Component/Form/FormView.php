@@ -21,10 +21,10 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * The variables assigned to this view.
      */
-    public $vars = array(
+    public $vars = [
         'value' => null,
-        'attr' => array(),
-    );
+        'attr' => [],
+    ];
 
     /**
      * The parent view.
@@ -36,7 +36,7 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @var FormView[]
      */
-    public $children = array();
+    public $children = [];
 
     /**
      * Is the form attached to this renderer rendered?
@@ -51,7 +51,7 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 
     private $methodRendered = false;
 
-    public function __construct(FormView $parent = null)
+    public function __construct(self $parent = null)
     {
         $this->parent = $parent;
     }
@@ -63,7 +63,7 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function isRendered()
     {
-        if (true === $this->rendered || 0 === count($this->children)) {
+        if (true === $this->rendered || 0 === \count($this->children)) {
             return $this->rendered;
         }
 
@@ -132,7 +132,7 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function offsetSet($name, $value)
     {
-        throw new BadMethodCallException('Not supported');
+        throw new BadMethodCallException('Not supported.');
     }
 
     /**
@@ -148,7 +148,7 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Returns an iterator to iterate over children (implements \IteratorAggregate).
      *
-     * @return \ArrayIterator|FormView[] The iterator
+     * @return \ArrayIterator<string, FormView> The iterator
      */
     public function getIterator()
     {
@@ -162,6 +162,6 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function count()
     {
-        return count($this->children);
+        return \count($this->children);
     }
 }

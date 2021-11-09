@@ -5,6 +5,9 @@ namespace Snc\RedisBundle\Factory;
 use Predis\Connection\ParametersInterface;
 use Snc\RedisBundle\DependencyInjection\Configuration\RedisDsn;
 
+/**
+ * @internal
+ */
 class PredisParametersFactory
 {
     /**
@@ -16,15 +19,18 @@ class PredisParametersFactory
      */
     public static function create($options, $class, $dsn)
     {
-        if (!is_a($class, '\Predis\Connection\ParametersInterface', true)) {
-            throw new \InvalidArgumentException(sprintf('%s::%s requires $class argument to implement %s', __CLASS__, __METHOD__, '\Predis\Connection\ParametersInterface'));
+        if (!is_a($class, ParametersInterface::class, true)) {
+            throw new \InvalidArgumentException(sprintf('%s::%s requires $class argument to implement %s', __CLASS__, __METHOD__, ParametersInterface::class));
         }
 
-        $defaultOptions = array('timeout' => null); // Allow to be consistent with old version of Predis where default timeout was 5
+        $defaultOptions = ['timeout' => null]; // Allow to be consistent will old version of Predis where default timeout was 5
         $dsnOptions = static::parseDsn(new RedisDsn($dsn));
         $dsnOptions = array_merge($defaultOptions, $options, $dsnOptions);
 
-        if (isset($dsnOptions['persistent'], $dsnOptions['database']) && true === $dsnOptions['persistent']) {
+        if (isset($dsnOptions['persistent'], $dsnOptions['database'])
+            && true === $dsnOptions['persistent']
+            && (int)$dsnOptions['database'] !== 0
+        ) {
             $dsnOptions['persistent'] = (int)$dsnOptions['database'];
         }
 

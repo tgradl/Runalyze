@@ -31,11 +31,11 @@
         "symfony/cache": "~3.1|~4.0",
         "symfony/dependency-injection": "~3.3|~4.0",
         "phpdocumentor/reflection-docblock": "^3.0|^4.0",
-        "doctrine/annotations": "~1.0"
+        "doctrine/annotations": "~1.7"
     },
     "conflict": {
         "phpdocumentor/reflection-docblock": "<3.0||>=3.2.0,<3.2.2",
-        "phpdocumentor/type-resolver": "<0.2.1",
+        "phpdocumentor/type-resolver": "<0.3.0",
         "symfony/dependency-injection": "<3.3"
     },
     "suggest": {
@@ -50,10 +50,5 @@
             "/Tests/"
         ]
     },
-    "minimum-stability": "dev",
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.4-dev"
-        }
-    }
+    "minimum-stability": "dev"
 }

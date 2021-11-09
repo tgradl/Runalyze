@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.44",
     "Names": {
         "ADP": [
             "ADP",
@@ -683,6 +682,10 @@
         ],
         "MRO": [
             "MRO",
+            "Mauritanian Ouguiya (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "Mauritanian Ouguiya"
         ],
         "MTL": [
@@ -915,11 +918,11 @@
         ],
         "STD": [
             "STD",
-            "São Tomé & Príncipe Dobra"
+            "São Tomé & Príncipe Dobra (1977–2017)"
         ],
         "STN": [
             "STN",
-            "São Tomé & Príncipe Dobra (2018)"
+            "São Tomé & Príncipe Dobra"
         ],
         "SUR": [
             "SUR",
@@ -1029,6 +1032,10 @@
             "UYU",
             "Uruguayan Peso"
         ],
+        "UYW": [
+            "UYW",
+            "Uruguayan Nominal Wage Index Unit"
+        ],
         "UZS": [
             "UZS",
             "Uzbekistani Som"
@@ -1039,6 +1046,10 @@
         ],
         "VEF": [
             "VEF",
+            "Venezuelan Bolívar (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Venezuelan Bolívar"
         ],
         "VND": [

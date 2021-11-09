@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.5",
     "Names": {
         "ADP": [
             "ADP",
@@ -395,7 +394,7 @@
         ],
         "GEL": [
             "GEL",
-            "Lari Gruzia"
+            "Lari Georgia"
         ],
         "GHC": [
             "GHC",
@@ -491,7 +490,7 @@
         ],
         "IQD": [
             "IQD",
-            "Dinar I-rắc"
+            "Dinar Iraq"
         ],
         "IRR": [
             "IRR",
@@ -667,6 +666,10 @@
         ],
         "MRO": [
             "MRO",
+            "Ouguiya Mauritania (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "Ouguiya Mauritania"
         ],
         "MTL": [
@@ -771,7 +774,7 @@
         ],
         "PGK": [
             "PGK",
-            "Kina Papua New Guinean"
+            "Kina Papua New Guinea"
         ],
         "PHP": [
             "PHP",
@@ -895,6 +898,10 @@
         ],
         "STD": [
             "STD",
+            "Dobra São Tomé và Príncipe (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "Dobra São Tomé và Príncipe"
         ],
         "SUR": [
@@ -967,7 +974,7 @@
         ],
         "UAH": [
             "UAH",
-            "Hryvnia Ucraina"
+            "Hryvnia Ukraina"
         ],
         "UAK": [
             "UAK",
@@ -1015,6 +1022,10 @@
         ],
         "VEF": [
             "VEF",
+            "Bolívar Venezuela (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Bolívar Venezuela"
         ],
         "VND": [

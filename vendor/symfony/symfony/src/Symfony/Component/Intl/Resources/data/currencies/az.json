@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.1",
     "Names": {
         "ADP": [
             "ADP",
@@ -171,7 +170,7 @@
         ],
         "BSD": [
             "BSD",
-            "Bahama Dolları"
+            "Baham Dolları"
         ],
         "BTN": [
             "BTN",
@@ -227,7 +226,7 @@
         ],
         "CNH": [
             "CNH",
-            "CNH"
+            "Çin Yuanı (ofşor)"
         ],
         "CNY": [
             "CN¥",
@@ -347,7 +346,7 @@
         ],
         "GBP": [
             "£",
-            "Britaniya Funt"
+            "Britaniya Funtu"
         ],
         "GEK": [
             "GEK",
@@ -367,7 +366,7 @@
         ],
         "GIP": [
             "GIP",
-            "Gibraltar Funtu"
+            "Cəbəli-Tariq Funtu"
         ],
         "GMD": [
             "GMD",
@@ -491,7 +490,7 @@
         ],
         "KGS": [
             "KGS",
-            "Kırğızıstan Somu"
+            "Qırğızıstan Somu"
         ],
         "KHR": [
             "KHR",
@@ -619,6 +618,10 @@
         ],
         "MRO": [
             "MRO",
+            "Mavritaniya Ugiyası (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "Mavritaniya Ugiyası"
         ],
         "MTP": [
@@ -827,6 +830,10 @@
         ],
         "STD": [
             "STD",
+            "San Tom və Prinsip Dobrası (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "San Tom və Prinsip Dobrası"
         ],
         "SUR": [
@@ -947,6 +954,10 @@
         ],
         "VEF": [
             "VEF",
+            "Venesuela Bolivarı (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Venesuela Bolivarı"
         ],
         "VND": [

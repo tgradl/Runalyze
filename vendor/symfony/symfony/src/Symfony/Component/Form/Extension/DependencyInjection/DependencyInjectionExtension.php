@@ -12,9 +12,9 @@
 namespace Symfony\Component\Form\Extension\DependencyInjection;
 
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\FormExtensionInterface;
 use Symfony\Component\Form\FormTypeGuesserChain;
-use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 class DependencyInjectionExtension implements FormExtensionInterface
 {
@@ -29,14 +29,13 @@ class DependencyInjectionExtension implements FormExtensionInterface
     private $guesserServiceIds;
 
     /**
-     * @param ContainerInterface $typeContainer
-     * @param iterable[]         $typeExtensionServices
-     * @param iterable           $guesserServices
+     * @param iterable[] $typeExtensionServices
+     * @param iterable   $guesserServices
      */
     public function __construct(ContainerInterface $typeContainer, array $typeExtensionServices, $guesserServices, array $guesserServiceIds = null)
     {
         if (null !== $guesserServiceIds) {
-            @trigger_error(sprintf('Passing four arguments to the %s::__construct() method is deprecated since Symfony 3.3 and will be disallowed in Symfony 4.0. The new constructor only accepts three arguments.', __CLASS__), E_USER_DEPRECATED);
+            @trigger_error(sprintf('Passing four arguments to the %s::__construct() method is deprecated since Symfony 3.3 and will be disallowed in Symfony 4.0. The new constructor only accepts three arguments.', __CLASS__), \E_USER_DEPRECATED);
             $this->guesserServiceIds = $guesserServiceIds;
             $this->typeServiceIds = $typeExtensionServices;
             $typeExtensionServices = $guesserServices;
@@ -76,7 +75,7 @@ class DependencyInjectionExtension implements FormExtensionInterface
 
     public function getTypeExtensions($name)
     {
-        $extensions = array();
+        $extensions = [];
 
         if (isset($this->typeExtensionServices[$name])) {
             foreach ($this->typeExtensionServices[$name] as $serviceId => $extension) {
@@ -88,13 +87,7 @@ class DependencyInjectionExtension implements FormExtensionInterface
 
                 // validate result of getExtendedType() to ensure it is consistent with the service definition
                 if ($extension->getExtendedType() !== $name) {
-                    throw new InvalidArgumentException(
-                        sprintf('The extended type specified for the service "%s" does not match the actual extended type. Expected "%s", given "%s".',
-                            $serviceId,
-                            $name,
-                            $extension->getExtendedType()
-                        )
-                    );
+                    throw new InvalidArgumentException(sprintf('The extended type specified for the service "%s" does not match the actual extended type. Expected "%s", given "%s".', $serviceId, $name, $extension->getExtendedType()));
                 }
             }
         }
@@ -111,7 +104,7 @@ class DependencyInjectionExtension implements FormExtensionInterface
     {
         if (!$this->guesserLoaded) {
             $this->guesserLoaded = true;
-            $guessers = array();
+            $guessers = [];
 
             foreach ($this->guesserServices as $serviceId => $service) {
                 if (null !== $this->guesserServiceIds) {

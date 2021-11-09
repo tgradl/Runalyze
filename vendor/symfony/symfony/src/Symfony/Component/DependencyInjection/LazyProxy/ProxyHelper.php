@@ -37,42 +37,38 @@ class ProxyHelper
             $type = method_exists($r, 'getReturnType') ? $r->getReturnType() : null;
         }
         if (!$type) {
-            return;
+            return null;
         }
-        if (!is_string($type)) {
-            $name = $type instanceof \ReflectionNamedType ? $type->getName() : $type->__toString();
 
-            if ($type->isBuiltin()) {
-                return $noBuiltin ? null : $name;
+        $types = [];
+
+        foreach ($type instanceof \ReflectionUnionType ? $type->getTypes() : [$type] as $type) {
+            $name = $type instanceof \ReflectionNamedType ? $type->getName() : (string) $type;
+
+            if (!\is_string($type) && $type->isBuiltin()) {
+                if (!$noBuiltin) {
+                    $types[] = $name;
+                }
+                continue;
+            }
+
+            $lcName = strtolower($name);
+            $prefix = $noBuiltin ? '' : '\\';
+
+            if ('self' !== $lcName && 'parent' !== $lcName) {
+                $types[] = '' !== $prefix ? $prefix.$name : $name;
+                continue;
+            }
+            if (!$r instanceof \ReflectionMethod) {
+                continue;
+            }
+            if ('self' === $lcName) {
+                $types[] = $prefix.$r->getDeclaringClass()->name;
+            } else {
+                $types[] = ($parent = $r->getDeclaringClass()->getParentClass()) ? $prefix.$parent->name : null;
             }
         }
-        $lcName = strtolower($name);
-        $prefix = $noBuiltin ? '' : '\\';
 
-        if ('self' !== $lcName && 'parent' !== $lcName) {
-            return $prefix.$name;
-        }
-        if (!$r instanceof \ReflectionMethod) {
-            return;
-        }
-        if ('self' === $lcName) {
-            return $prefix.$r->getDeclaringClass()->name;
-        }
-        if ($parent = $r->getDeclaringClass()->getParentClass()) {
-            return $prefix.$parent->name;
-        }
-    }
-
-    private static function export($value)
-    {
-        if (!is_array($value)) {
-            return var_export($value, true);
-        }
-        $code = array();
-        foreach ($value as $k => $v) {
-            $code[] = sprintf('%s => %s', var_export($k, true), self::export($v));
-        }
-
-        return sprintf('array(%s)', implode(', ', $code));
+        return $types ? implode('|', $types) : null;
     }
 }

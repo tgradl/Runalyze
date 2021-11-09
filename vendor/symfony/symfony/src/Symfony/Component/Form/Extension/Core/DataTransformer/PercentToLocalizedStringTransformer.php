@@ -26,10 +26,10 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
     const FRACTIONAL = 'fractional';
     const INTEGER = 'integer';
 
-    protected static $types = array(
+    protected static $types = [
         self::FRACTIONAL,
         self::INTEGER,
-    );
+    ];
 
     private $type;
     private $scale;
@@ -52,7 +52,7 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
             $type = self::FRACTIONAL;
         }
 
-        if (!in_array($type, self::$types, true)) {
+        if (!\in_array($type, self::$types, true)) {
             throw new UnexpectedTypeException($type, implode('", "', self::$types));
         }
 
@@ -107,12 +107,12 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             throw new TransformationFailedException('Expected a string.');
         }
 
         if ('' === $value) {
-            return;
+            return null;
         }
 
         $position = 0;
@@ -162,7 +162,7 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
             $remainder = trim($remainder, " \t\n\r\0\x0b\xc2\xa0");
 
             if ('' !== $remainder) {
-                throw new TransformationFailedException(sprintf('The number contains unrecognized characters: "%s"', $remainder));
+                throw new TransformationFailedException(sprintf('The number contains unrecognized characters: "%s".', $remainder));
             }
         }
 

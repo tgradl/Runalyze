@@ -29,6 +29,7 @@
             <xsd:element name="property-info" type="property_info" minOccurs="0" maxOccurs="1" />
             <xsd:element name="cache" type="cache" minOccurs="0" maxOccurs="1" />
             <xsd:element name="workflow" type="workflow" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="php-errors" type="php-errors" minOccurs="0" maxOccurs="1" />
             <xsd:element name="lock" type="lock" minOccurs="0" maxOccurs="1" />
         </xsd:choice>
 
@@ -103,6 +104,7 @@
     </xsd:complexType>
 
     <xsd:complexType name="session">
+        <xsd:attribute name="enabled" type="xsd:boolean" />
         <xsd:attribute name="storage-id" type="xsd:string" />
         <xsd:attribute name="handler-id" type="xsd:string" />
         <xsd:attribute name="name" type="xsd:string" />
@@ -111,6 +113,7 @@
         <xsd:attribute name="cookie-domain" type="xsd:string" />
         <xsd:attribute name="cookie-secure" type="xsd:boolean" />
         <xsd:attribute name="cookie-httponly" type="xsd:boolean" />
+        <xsd:attribute name="cookie-samesite" type="cookie_samesite" />
         <xsd:attribute name="use-cookies" type="xsd:boolean" />
         <xsd:attribute name="cache-limiter" type="xsd:string" />
         <xsd:attribute name="gc-maxlifetime" type="xsd:string" />
@@ -118,6 +121,7 @@
         <xsd:attribute name="gc-probability" type="xsd:string" />
         <xsd:attribute name="use-strict-mode" type="xsd:boolean" />
         <xsd:attribute name="save-path" type="xsd:string" />
+        <xsd:attribute name="metadata-update-threshold" type="xsd:nonNegativeInteger" />
     </xsd:complexType>
 
     <xsd:complexType name="request">
@@ -229,6 +233,7 @@
         <xsd:attribute name="cache" type="xsd:string" />
         <xsd:attribute name="enable-annotations" type="xsd:boolean" />
         <xsd:attribute name="name-converter" type="xsd:string" />
+        <xsd:attribute name="circular-reference-handler" type="xsd:string" />
     </xsd:complexType>
 
     <xsd:complexType name="property_info">
@@ -246,6 +251,8 @@
             <xsd:element name="default-memcached-provider" type="xsd:string" minOccurs="0" maxOccurs="1" />
             <xsd:element name="pool" type="cache_pool" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
+
+        <xsd:attribute name="prefix-seed" type="xsd:string" />
     </xsd:complexType>
 
     <xsd:complexType name="cache_pool">
@@ -271,6 +278,11 @@
         <xsd:attribute name="enabled" type="xsd:boolean" />
     </xsd:complexType>
 
+    <xsd:complexType name="php-errors">
+        <xsd:attribute name="log" type="xsd:boolean" />
+        <xsd:attribute name="throw" type="xsd:boolean" />
+    </xsd:complexType>
+
     <xsd:complexType name="marking_store">
         <xsd:sequence>
             <xsd:element name="argument" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
@@ -290,9 +302,19 @@
         <xsd:sequence>
             <xsd:element name="from" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
             <xsd:element name="to" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+            <xsd:element name="guard" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
         <xsd:attribute name="name" type="xsd:string" use="required" />
     </xsd:complexType>
+
+    <xsd:simpleType name="cookie_samesite">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="" />
+            <xsd:enumeration value="none" />
+            <xsd:enumeration value="lax" />
+            <xsd:enumeration value="strict" />
+        </xsd:restriction>
+    </xsd:simpleType>
 
     <xsd:simpleType name="workflow_type">
         <xsd:restriction base="xsd:string">

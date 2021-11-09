@@ -11,9 +11,9 @@
 
 namespace Symfony\Bridge\PhpUnit\Legacy;
 
-use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Warning;
+use PHPUnit\Util\Annotation\Registry;
 
 /**
  * PHP 5.3 compatible trait-like shared implementation.
@@ -59,7 +59,7 @@ class CoverageListenerTrait
                 if (method_exists($test->getTestResultObject(), 'addWarning') && class_exists(Warning::class)) {
                     $test->getTestResultObject()->addWarning($test, new Warning($message), 0);
                 } else {
-                    $this->warnings[] = sprintf("%s::%s\n%s", get_class($test), $test->getName(), $message);
+                    $this->warnings[] = sprintf("%s::%s\n%s", \get_class($test), $test->getName(), $message);
                 }
             }
 
@@ -71,16 +71,48 @@ class CoverageListenerTrait
             $testClass = \PHPUnit_Util_Test::class;
         }
 
+        $covers = $sutFqcn;
+        if (!\is_array($sutFqcn)) {
+            $covers = array($sutFqcn);
+            while ($parent = get_parent_class($sutFqcn)) {
+                $covers[] = $parent;
+                $sutFqcn = $parent;
+            }
+        }
+
+        if (class_exists(Registry::class)) {
+            $this->addCoversForDocBlockInsideRegistry($test, $covers);
+
+            return;
+        }
+
+        $this->addCoversForClassToAnnotationCache($testClass, $test, $covers);
+    }
+
+    private function addCoversForClassToAnnotationCache($testClass, $test, $covers)
+    {
         $r = new \ReflectionProperty($testClass, 'annotationCache');
         $r->setAccessible(true);
 
         $cache = $r->getValue();
         $cache = array_replace_recursive($cache, array(
-            get_class($test) => array(
-                'covers' => array($sutFqcn),
+            \get_class($test) => array(
+                'covers' => $covers,
             ),
         ));
         $r->setValue($testClass, $cache);
+    }
+
+    private function addCoversForDocBlockInsideRegistry($test, $covers)
+    {
+        $docBlock = Registry::getInstance()->forClassName(\get_class($test));
+
+        $symbolAnnotations = new \ReflectionProperty($docBlock, 'symbolAnnotations');
+        $symbolAnnotations->setAccessible(true);
+
+        $symbolAnnotations->setValue($docBlock, array_replace($docBlock->symbolAnnotations(), array(
+            'covers' => $covers,
+        )));
     }
 
     private function findSutFqcn($test)
@@ -91,16 +123,12 @@ class CoverageListenerTrait
             return $resolver($test);
         }
 
-        $class = get_class($test);
+        $class = \get_class($test);
 
         $sutFqcn = str_replace('\\Tests\\', '\\', $class);
         $sutFqcn = preg_replace('{Test$}', '', $sutFqcn);
 
-        if (!class_exists($sutFqcn)) {
-            return;
-        }
-
-        return $sutFqcn;
+        return class_exists($sutFqcn) ? $sutFqcn : null;
     }
 
     public function __destruct()

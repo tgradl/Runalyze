@@ -11,8 +11,8 @@
 
 namespace Symfony\Bridge\Doctrine\DependencyInjection\CompilerPass;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Registers additional validators.
@@ -44,9 +44,8 @@ class DoctrineValidationPass implements CompilerPassInterface
      * Gets the validation mapping files for the format and extends them with
      * files matching a doctrine search pattern (Resources/config/validation.orm.xml).
      *
-     * @param ContainerBuilder $container
-     * @param string           $mapping
-     * @param string           $extension
+     * @param string $mapping
+     * @param string $extension
      */
     private function updateValidatorMappingFiles(ContainerBuilder $container, $mapping, $extension)
     {
@@ -59,7 +58,7 @@ class DoctrineValidationPass implements CompilerPassInterface
 
         foreach ($container->getParameter('kernel.bundles') as $bundle) {
             $reflection = new \ReflectionClass($bundle);
-            if ($container->fileExists($file = dirname($reflection->getFileName()).'/'.$validationPath)) {
+            if ($container->fileExists($file = \dirname($reflection->getFileName()).'/'.$validationPath)) {
                 $files[] = $file;
             }
         }

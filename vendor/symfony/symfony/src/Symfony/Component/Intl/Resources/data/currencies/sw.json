@@ -1,5 +1,4 @@
 {
-    "Version": "2.1.37.34",
     "Names": {
         "AED": [
             "AED",
@@ -151,7 +150,7 @@
         ],
         "CZK": [
             "CZK",
-            "CZK"
+            "koruna ya Jamhuri ya Czech"
         ],
         "DJF": [
             "DJF",
@@ -167,7 +166,7 @@
         ],
         "DZD": [
             "DZD",
-            "Dinar ya Algeria"
+            "Dinar ya Aljeria"
         ],
         "EGP": [
             "EGP",
@@ -387,6 +386,10 @@
         ],
         "MRO": [
             "MRO",
+            "Ouguiya ya Mauritania (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "Ouguiya ya Mauritania"
         ],
         "MUR": [
@@ -543,6 +546,10 @@
         ],
         "STD": [
             "STD",
+            "Dobra ya Sao Tome na Principe (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "Dobra ya Sao Tome na Principe"
         ],
         "SYP": [
@@ -611,6 +618,10 @@
         ],
         "VEF": [
             "VEF",
+            "Bolivar ya Venezuela (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Bolivar ya Venezuela"
         ],
         "VND": [

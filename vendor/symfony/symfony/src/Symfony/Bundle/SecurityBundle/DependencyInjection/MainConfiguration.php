@@ -12,10 +12,10 @@
 namespace Symfony\Bundle\SecurityBundle\DependencyInjection;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategy;
 
 /**
@@ -66,9 +66,7 @@ class MainConfiguration implements ConfigurationInterface
                     return false;
                 })
                 ->then(function ($v) {
-                    $v['access_decision_manager'] = array(
-                        'strategy' => AccessDecisionManager::STRATEGY_AFFIRMATIVE,
-                    );
+                    $v['access_decision_manager']['strategy'] = AccessDecisionManager::STRATEGY_AFFIRMATIVE;
 
                     return $v;
                 })
@@ -76,7 +74,7 @@ class MainConfiguration implements ConfigurationInterface
             ->children()
                 ->scalarNode('access_denied_url')->defaultNull()->example('/foo/error403')->end()
                 ->enumNode('session_fixation_strategy')
-                    ->values(array(SessionAuthenticationStrategy::NONE, SessionAuthenticationStrategy::MIGRATE, SessionAuthenticationStrategy::INVALIDATE))
+                    ->values([SessionAuthenticationStrategy::NONE, SessionAuthenticationStrategy::MIGRATE, SessionAuthenticationStrategy::INVALIDATE])
                     ->defaultValue(SessionAuthenticationStrategy::MIGRATE)
                 ->end()
                 ->booleanNode('hide_user_not_found')->defaultTrue()->end()
@@ -86,7 +84,7 @@ class MainConfiguration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->enumNode('strategy')
-                            ->values(array(AccessDecisionManager::STRATEGY_AFFIRMATIVE, AccessDecisionManager::STRATEGY_CONSENSUS, AccessDecisionManager::STRATEGY_UNANIMOUS))
+                            ->values([AccessDecisionManager::STRATEGY_AFFIRMATIVE, AccessDecisionManager::STRATEGY_CONSENSUS, AccessDecisionManager::STRATEGY_UNANIMOUS])
                         ->end()
                         ->scalarNode('service')->end()
                         ->booleanNode('allow_if_all_abstain')->defaultFalse()->end()
@@ -115,7 +113,7 @@ class MainConfiguration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('acl')
-                    ->setDeprecated('The "security.acl" configuration key is deprecated since version 3.4 and will be removed in 4.0. Install symfony/acl-bundle and use the "acl" key instead.')
+                    ->setDeprecated('The "security.acl" configuration key is deprecated since Symfony 3.4 and will be removed in 4.0. Install symfony/acl-bundle and use the "acl" key instead.')
                     ->children()
                         ->scalarNode('connection')
                             ->defaultNull()
@@ -160,9 +158,9 @@ class MainConfiguration implements ConfigurationInterface
                     ->useAttributeAsKey('id')
                     ->prototype('array')
                         ->performNoDeepMerging()
-                        ->beforeNormalization()->ifString()->then(function ($v) { return array('value' => $v); })->end()
+                        ->beforeNormalization()->ifString()->then(function ($v) { return ['value' => $v]; })->end()
                         ->beforeNormalization()
-                            ->ifTrue(function ($v) { return is_array($v) && isset($v['value']); })
+                            ->ifTrue(function ($v) { return \is_array($v) && isset($v['value']); })
                             ->then(function ($v) { return preg_split('/\s*,\s*/', $v['value']); })
                         ->end()
                         ->prototype('scalar')->end()
@@ -191,7 +189,7 @@ class MainConfiguration implements ConfigurationInterface
                             ->end()
                             ->scalarNode('host')->defaultNull()->end()
                             ->arrayNode('ips')
-                                ->beforeNormalization()->ifString()->then(function ($v) { return array($v); })->end()
+                                ->beforeNormalization()->ifString()->then(function ($v) { return [$v]; })->end()
                                 ->prototype('scalar')->end()
                             ->end()
                             ->arrayNode('methods')
@@ -252,7 +250,7 @@ class MainConfiguration implements ConfigurationInterface
                 ->info('When true, it will trigger a logout for the user if something has changed. This will be the default behavior as of Syfmony 4.0.')
             ->end()
             ->arrayNode('logout')
-                ->treatTrueLike(array())
+                ->treatTrueLike([])
                 ->canBeUnset()
                 ->children()
                     ->scalarNode('csrf_parameter')->defaultValue('_csrf_token')->end()
@@ -267,14 +265,16 @@ class MainConfiguration implements ConfigurationInterface
                 ->children()
                     ->arrayNode('delete_cookies')
                         ->beforeNormalization()
-                            ->ifTrue(function ($v) { return is_array($v) && is_int(key($v)); })
-                            ->then(function ($v) { return array_map(function ($v) { return array('name' => $v); }, $v); })
+                            ->ifTrue(function ($v) { return \is_array($v) && \is_int(key($v)); })
+                            ->then(function ($v) { return array_map(function ($v) { return ['name' => $v]; }, $v); })
                         ->end()
                         ->useAttributeAsKey('name')
                         ->prototype('array')
                             ->children()
                                 ->scalarNode('path')->defaultNull()->end()
                                 ->scalarNode('domain')->defaultNull()->end()
+                                ->scalarNode('secure')->defaultFalse()->end()
+                                ->scalarNode('samesite')->defaultNull()->end()
                             ->end()
                         ->end()
                     ->end()
@@ -289,7 +289,7 @@ class MainConfiguration implements ConfigurationInterface
             ->arrayNode('anonymous')
                 ->canBeUnset()
                 ->children()
-                    ->scalarNode('secret')->defaultValue(uniqid('', true))->end()
+                    ->scalarNode('secret')->defaultNull()->end()
                 ->end()
             ->end()
             ->arrayNode('switch_user')
@@ -298,12 +298,12 @@ class MainConfiguration implements ConfigurationInterface
                     ->scalarNode('provider')->end()
                     ->scalarNode('parameter')->defaultValue('_switch_user')->end()
                     ->scalarNode('role')->defaultValue('ROLE_ALLOWED_TO_SWITCH')->end()
-                    ->booleanNode('stateless')->defaultValue(false)->end()
+                    ->booleanNode('stateless')->defaultFalse()->end()
                 ->end()
             ->end()
         ;
 
-        $abstractFactoryKeys = array();
+        $abstractFactoryKeys = [];
         foreach ($factories as $factoriesAtPosition) {
             foreach ($factoriesAtPosition as $factory) {
                 $name = str_replace('-', '_', $factory->getKey());
@@ -349,17 +349,17 @@ class MainConfiguration implements ConfigurationInterface
             ->fixXmlConfig('provider')
             ->children()
                 ->arrayNode('providers')
-                    ->example(array(
-                        'my_memory_provider' => array(
-                            'memory' => array(
-                                'users' => array(
-                                    'foo' => array('password' => 'foo', 'roles' => 'ROLE_USER'),
-                                    'bar' => array('password' => 'bar', 'roles' => '[ROLE_USER, ROLE_ADMIN]'),
-                                ),
-                            ),
-                        ),
-                        'my_entity_provider' => array('entity' => array('class' => 'SecurityBundle:User', 'property' => 'username')),
-                    ))
+                    ->example([
+                        'my_memory_provider' => [
+                            'memory' => [
+                                'users' => [
+                                    'foo' => ['password' => 'foo', 'roles' => 'ROLE_USER'],
+                                    'bar' => ['password' => 'bar', 'roles' => '[ROLE_USER, ROLE_ADMIN]'],
+                                ],
+                            ],
+                        ],
+                        'my_entity_provider' => ['entity' => ['class' => 'SecurityBundle:User', 'property' => 'username']],
+                    ])
                     ->isRequired()
                     ->requiresAtLeastOneElement()
                     ->useAttributeAsKey('name')
@@ -393,11 +393,11 @@ class MainConfiguration implements ConfigurationInterface
 
         $providerNodeBuilder
             ->validate()
-                ->ifTrue(function ($v) { return count($v) > 1; })
+                ->ifTrue(function ($v) { return \count($v) > 1; })
                 ->thenInvalid('You cannot set multiple provider types for the same provider')
             ->end()
             ->validate()
-                ->ifTrue(function ($v) { return 0 === count($v); })
+                ->ifTrue(function ($v) { return 0 === \count($v); })
                 ->thenInvalid('You must set a provider definition for the provider.')
             ->end()
         ;
@@ -409,21 +409,27 @@ class MainConfiguration implements ConfigurationInterface
             ->fixXmlConfig('encoder')
             ->children()
                 ->arrayNode('encoders')
-                    ->example(array(
-                        'AppBundle\Entity\User1' => 'bcrypt',
-                        'AppBundle\Entity\User2' => array(
+                    ->example([
+                        'App\Entity\User1' => 'bcrypt',
+                        'App\Entity\User2' => [
                             'algorithm' => 'bcrypt',
                             'cost' => 13,
-                        ),
-                    ))
+                        ],
+                    ])
                     ->requiresAtLeastOneElement()
                     ->useAttributeAsKey('class')
                     ->prototype('array')
                         ->canBeUnset()
                         ->performNoDeepMerging()
-                        ->beforeNormalization()->ifString()->then(function ($v) { return array('algorithm' => $v); })->end()
+                        ->beforeNormalization()->ifString()->then(function ($v) { return ['algorithm' => $v]; })->end()
                         ->children()
-                            ->scalarNode('algorithm')->cannotBeEmpty()->end()
+                            ->scalarNode('algorithm')
+                                ->cannotBeEmpty()
+                                ->validate()
+                                    ->ifTrue(function ($v) { return !\is_string($v); })
+                                    ->thenInvalid('You must provide a string value.')
+                                ->end()
+                            ->end()
                             ->scalarNode('hash_algorithm')->info('Name of hashing algorithm for PBKDF2 (i.e. sha256, sha512, etc..) See hash_algos() for a list of supported algorithms.')->defaultValue('sha512')->end()
                             ->scalarNode('key_length')->defaultValue(40)->end()
                             ->booleanNode('ignore_case')->defaultFalse()->end()

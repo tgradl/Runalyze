@@ -24,7 +24,7 @@ class TemplateLocator implements FileLocatorInterface
     protected $locator;
     protected $cache;
 
-    private $cacheHits = array();
+    private $cacheHits = [];
 
     /**
      * @param FileLocatorInterface $locator  A FileLocatorInterface instance
@@ -79,7 +79,7 @@ class TemplateLocator implements FileLocatorInterface
         try {
             return $this->cacheHits[$key] = $this->locator->locate($template->getPath(), $currentPath);
         } catch (\InvalidArgumentException $e) {
-            throw new \InvalidArgumentException(sprintf('Unable to find template "%s" : "%s".', $template, $e->getMessage()), 0, $e);
+            throw new \InvalidArgumentException(sprintf('Unable to find template "%s": ', $template).$e->getMessage(), 0, $e);
         }
     }
 }

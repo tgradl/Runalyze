@@ -11,10 +11,10 @@
 
 namespace Symfony\Bundle\SecurityBundle\EventListener;
 
-@trigger_error(sprintf('Class "%s" is deprecated since version 3.4 and will be removed in 4.0. Use Symfony\Bundle\AclBundle\EventListener\AclSchemaListener instead.', AclSchemaListener::class), E_USER_DEPRECATED);
+@trigger_error(sprintf('Class "%s" is deprecated since Symfony 3.4 and will be removed in 4.0. Use Symfony\Bundle\AclBundle\EventListener\AclSchemaListener instead.', AclSchemaListener::class), \E_USER_DEPRECATED);
 
-use Symfony\Component\Security\Acl\Dbal\Schema;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
+use Symfony\Component\Security\Acl\Dbal\Schema;
 
 /**
  * Merges ACL schema into the given schema.

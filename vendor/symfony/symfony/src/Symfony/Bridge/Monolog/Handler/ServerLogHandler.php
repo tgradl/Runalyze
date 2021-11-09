@@ -24,7 +24,7 @@ class ServerLogHandler extends AbstractHandler
     private $context;
     private $socket;
 
-    public function __construct($host, $level = Logger::DEBUG, $bubble = true, $context = array())
+    public function __construct($host, $level = Logger::DEBUG, $bubble = true, $context = [])
     {
         parent::__construct($level, $bubble);
 
@@ -61,7 +61,7 @@ class ServerLogHandler extends AbstractHandler
 
         try {
             if (-1 === stream_socket_sendto($this->socket, $recordFormatted)) {
-                stream_socket_shutdown($this->socket, STREAM_SHUT_RDWR);
+                stream_socket_shutdown($this->socket, \STREAM_SHUT_RDWR);
 
                 // Let's retry: the persistent connection might just be stale
                 if ($this->socket = $this->createSocket()) {
@@ -89,7 +89,7 @@ class ServerLogHandler extends AbstractHandler
 
     private function createSocket()
     {
-        $socket = stream_socket_client($this->host, $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT | STREAM_CLIENT_PERSISTENT, $this->context);
+        $socket = stream_socket_client($this->host, $errno, $errstr, 0, \STREAM_CLIENT_CONNECT | \STREAM_CLIENT_ASYNC_CONNECT | \STREAM_CLIENT_PERSISTENT, $this->context);
 
         if ($socket) {
             stream_set_blocking($socket, false);
@@ -102,13 +102,13 @@ class ServerLogHandler extends AbstractHandler
     {
         if ($this->processors) {
             foreach ($this->processors as $processor) {
-                $record = call_user_func($processor, $record);
+                $record = \call_user_func($processor, $record);
             }
         }
 
         $recordFormatted = $this->getFormatter()->format($record);
 
-        foreach (array('log_uuid', 'uuid', 'uid') as $key) {
+        foreach (['log_uuid', 'uuid', 'uid'] as $key) {
             if (isset($record['extra'][$key])) {
                 $recordFormatted['log_id'] = $record['extra'][$key];
                 break;

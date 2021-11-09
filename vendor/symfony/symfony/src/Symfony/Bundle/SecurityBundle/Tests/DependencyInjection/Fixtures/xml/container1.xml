@@ -3,7 +3,7 @@
 <srv:container xmlns="http://symfony.com/schema/dic/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:srv="http://symfony.com/schema/dic/services"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <config>
         <encoder class="JMS\FooBundle\Entity\User1" algorithm="plaintext" />
@@ -66,6 +66,11 @@
             <anonymous />
             <http-basic />
             <user-checker>app.user_checker</user-checker>
+        </firewall>
+
+        <firewall name="simple_auth" logout-on-user-change="true" provider="default">
+            <anonymous />
+            <simple-form authenticator="simple_authenticator" />
         </firewall>
 
         <role id="ROLE_ADMIN">ROLE_USER</role>

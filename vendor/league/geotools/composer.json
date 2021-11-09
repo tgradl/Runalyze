@@ -1,7 +1,7 @@
 {
     "name"        : "league/geotools",
     "type"        : "library",
-    "description" : "Geo-related tools PHP 5.4+ library (use 0.4 if you're using PHP 5.3)",
+    "description" : "Geo-related tools PHP 7.0+ library",
     "keywords"    : ["geotools", "geometry", "geocoder", "geocoding", "geoip", "bounds", "distance", "batch", "async"],
     "homepage"    : "http://geotools-php.org/",
     "license"     : "MIT",
@@ -24,20 +24,20 @@
     },
 
     "require" : {
-        "php"                     : ">=5.4",
-        "willdurand/geocoder"     : "~3.2",
-        "react/promise"           : "~2.2",
-        "symfony/console"         : "~2.7|~3.0",
-        "symfony/property-access" : "~2.7|~3.0",
-        "symfony/serializer"      : "~2.7|~3.0",
-        "react/event-loop"        : "0.4.*"
+        "php"                     : "^7.0",
+        "psr/cache"               : "^1.0",
+        "willdurand/geocoder"     : "^4.2",
+        "react/promise"           : "^2.2",
+        "symfony/console"         : "^2.7 || ^3.0 || ^4.0",
+        "symfony/property-access" : "^2.7 || ^3.0 || ^4.0",
+        "symfony/serializer"      : "^2.7 || ^3.0 || ^4.0",
+        "react/event-loop"        : "0.4.*",
+        "php-http/discovery"      : "^1.0",
+        "cache/array-adapter"     : "^1.0"
     },
 
     "require-dev" : {
-        "kriswallsmith/buzz"      : "~0.10",
-        "guzzle/guzzle"           : "~3.7",
-        "zendframework/zend-http" : "~2.2",
-        "predis/predis"           : "~1.0"
+        "phpunit/phpunit"         : "^6.5.5 || ^7.0"
     },
 
     "autoload" : {
