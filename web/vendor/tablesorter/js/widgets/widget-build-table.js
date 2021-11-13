@@ -1,28 +1,32 @@
-/*! Build Table widget for tableSorter v2.16.0 (4/23/2014)
+/*! Widget: Build Table - updated 2018-03-26 (v2.30.2) *//*
+ * for tableSorter v2.16.0+
  * by Rob Garrison
  */
 /*jshint browser:true, jquery:true, unused:false */
 /*global jQuery: false */
-;(function($){
-"use strict";
-var ts = $.tablesorter = $.tablesorter || {},
+;(function($) {
+	'use strict';
+	var ts = $.tablesorter = $.tablesorter || {},
 
 	// build a table from data (requires existing <table> tag)
 	// data.header contains an array of header titles
 	// data.rows contains an array of rows which contains an array of cells
-	bt = ts.buildTable = function(tar, c){
+	bt = ts.buildTable = function(tar, c) {
+		// add build options to defaults to prevent warnings
+		$.extend(true, ts.defaults.widgetOptions, bt.defaults);
 		// add table if one doesn't exist
-		var $tbl = tar.tagName === 'TABLE' ? $(tar) : $('<table>').appendTo(tar),
+		var $tbl = tar.nodeName === 'TABLE' ? $(tar) : $('<table>').appendTo(tar),
 			table = $tbl[0],
 			wo = c.widgetOptions = $.extend( true, {}, bt.defaults, c.widgetOptions ),
 			p = wo.build_processing,
 			typ = wo.build_type,
 			d = wo.build_source || c.data,
+			debug = ts.debug(c, 'build'),
 
 		// determine type: html, json, array, csv, object
-		runType = function(d){
+		runType = function(d) {
 			var t = $.type(d),
-				jq = d instanceof jQuery;
+				jq = d instanceof $;
 			// run any processing if set
 			if ( typeof p === 'function' ) { d = p(d, wo); }
 			// store processed data in table.config.data
@@ -34,12 +38,12 @@ var ts = $.tablesorter = $.tablesorter || {},
 					return bt.html( table, d, wo );
 				}
 				try {
-					d = $.parseJSON(d);
+					d = $.parseJSON(d || 'null');
 					if (d) {
 						// valid JSON!
 						return bt.object( table, d, wo );
 					}
-				} catch(ignore) {}
+				} catch (ignore) {}
 				// fall through in case it's a csv string
 			}
 			// Array
@@ -56,11 +60,13 @@ var ts = $.tablesorter = $.tablesorter || {},
 
 		// even if wo.build_type is undefined, we can try to figure out the type
 		if ( !ts.buildTable.hasOwnProperty(typ) && typ !== '' ) {
-			if (c.debug) { ts.log('aborting build table widget, incorrect build type'); }
+			if (debug) {
+				console.error('Build >> ERROR: Aborting build table widget, incorrect build type');
+			}
 			return false;
 		}
 
-		if ( d instanceof jQuery ) {
+		if ( d instanceof $ ) {
 			// get data from within a jQuery object (csv)
 			runType( $.trim( d.html() ) );
 		} else if ( d && ( d.hasOwnProperty('url') || typ === 'json' ) ) {
@@ -69,14 +75,19 @@ var ts = $.tablesorter = $.tablesorter || {},
 			.done(function(data) {
 				runType(data);
 			})
-			.fail(function( jqXHR, textStatus, errorThrown) {
-				if (c.debug) { ts.log('aborting build table widget, failed ajax load'); }
+			.fail(function( jqXHR, textStatus) {
+				if (debug) {
+					console.error('Build >> ERROR: Aborting build table widget, failed ajax load');
+				}
 				$tbl.html('<tr><td class="error">' + jqXHR.status + ' '  + textStatus + '</td></tr>');
 			});
 		} else {
 			runType(d);
 		}
 	};
+
+	// add data to defaults for validator; value must be falsy!
+	ts.defaults.data = '';
 
 	bt.defaults = {
 		// *** build widget core ***
@@ -104,7 +115,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 
 		// *** CSV only options ***
 		build_csvStartLine : 0,   // line within the csv to start adding to table
-		build_csvSeparator : ",", // csv separator
+		build_csvSeparator : ',', // csv separator
 
 		// *** build object options ***
 		build_objectRowKey    : 'rows',    // object key containing table rows
@@ -119,7 +130,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 			// add colgroup if widths set
 			if (widths && widths.length) {
 				t += '<colgroup>';
-				$.each(widths, function(i, w){
+				$.each(widths, function(i, w) {
 					t += '<col' + ( w ? ' style="width:' + w + '"' : '' ) + '>';
 				});
 				t += '</colgroup>';
@@ -127,7 +138,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 			return t;
 		},
 		// d = cell data; typ = 'th' or 'td'; first = save widths from first header row only
-		cell : function(d, wo, typ, col, first){
+		cell : function(d, wo, typ, col, first) {
 			var j, $td,
 				$col = first ? $('<col>') : '',
 				cls = wo.build_headers.classes,
@@ -144,7 +155,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 				// assume we have an object
 				$td = $('<' + typ + '>');
 				for (j in d) {
-					if (d.hasOwnProperty(j)){
+					if (d.hasOwnProperty(j)) {
 						if (j === 'text' || j === 'html') {
 							$td[j]( d[j] );
 						} else if (first && j === 'width') {
@@ -159,7 +170,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 			return [ $td, $col ];
 		},
 		// h1 = header text from data
-		header : function(h1, wo){
+		header : function(h1, wo) {
 			var h2 = wo.build_headers.text,
 				cls = wo.build_headers.classes,
 				t = '<tr>' + (wo.build_numbers.addColumn ? '<th' + (wo.build_numbers.sortable ? '' :
@@ -174,7 +185,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 			});
 			return t + '</tr>';
 		},
-		rows : function(items, txt, c, wo, num, ftr){
+		rows : function(items, txt, c, wo, num, ftr) {
 			var h = (ftr ? 'th' : 'td'),
 				t = '<tr>' + (wo.build_numbers.addColumn ? '<' + h + '>' + (ftr ? '' : num) + '</' + h + '>' : '');
 			$.each(items, function(i, item) {
@@ -190,8 +201,11 @@ var ts = $.tablesorter = $.tablesorter || {},
 		}
 	};
 
-	bt.buildComplete = function(table, wo){
-		$(table).trigger(wo.build_complete);
+	bt.buildComplete = function(table, wo) {
+		$(table).triggerHandler(wo.build_complete);
+		if (table.config && ts.debug(table.config, 'build')) {
+			console.log('Build >> Table build complete');
+		}
 		ts.setup(table, table.config);
 	};
 
@@ -224,7 +238,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 		var c, h,
 			csv = wo.build_type === 'csv' || typeof data === 'string',
 			$t = $(table),
-			lines = csv ? data.replace('\r','').split('\n') : data,
+			lines = csv ? data.replace('\r', '').split('\n') : data,
 			len = lines.length,
 			printedLines = 0,
 			infooter = false,
@@ -275,13 +289,13 @@ var ts = $.tablesorter = $.tablesorter || {},
 	// CSV Parser by Brian Huisman (http://www.greywyvern.com/?post=258)
 	bt.splitCSV = function(str, sep) {
 		var x, tl,
-			thisCSV = $.trim(str).split(sep = sep || ",");
+			thisCSV = $.trim(str).split(sep = sep || ',');
 		for ( x = thisCSV.length - 1; x >= 0; x-- ) {
 			if ( thisCSV[x].replace(/\"\s+$/, '"').charAt(thisCSV[x].length - 1) === '"' ) {
 				if ( (tl = thisCSV[x].replace(/^\s+\"/, '"')).length > 1 && tl.charAt(0) === '"' ) {
 					thisCSV[x] = thisCSV[x].replace(/^\s*"|"\s*$/g, '').replace(/""/g, '"');
 				} else if (x) {
-					thisCSV.splice(x - 1, 2, [thisCSV[x - 1], thisCSV[x]].join(sep));
+					thisCSV.splice(x - 1, 2, [ thisCSV[x - 1], thisCSV[x] ].join(sep));
 				} else {
 					thisCSV = thisCSV.shift().split(sep).concat(thisCSV);
 				}
@@ -295,7 +309,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 	// data may be a jQuery object after processing
 	bt.html = function(table, data, wo) {
 		var $t = $(table);
-		if ( data instanceof jQuery ) {
+		if ( data instanceof $ ) {
 			$t.empty().append(data);
 		} else {
 			$t.html(data);
@@ -303,7 +317,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 		bt.buildComplete(table, wo);
 	};
 
-/* ==== Object example ====
+	/* ==== Object example ====
 	data : {
 		headers : [
 			[
@@ -344,9 +358,9 @@ var ts = $.tablesorter = $.tablesorter || {},
 			}
 		]
 	}
-*/
+	*/
 	bt.object = function(table, data, wo) {
-		// "rows"
+		// 'rows'
 		var j, l, t, $c, $t, $tb, $tr,
 			c = table.config,
 			kh = wo.build_objectHeaderKey,
@@ -355,7 +369,9 @@ var ts = $.tablesorter = $.tablesorter || {},
 			r = data.hasOwnProperty(kr) && !$.isEmptyObject(data.kr) ? data.kr : data.hasOwnProperty('rows') ? data.rows : false;
 
 		if (!h || !r || h.length === 0 || r.length === 0) {
-			if (c.debug) { ts.log('aborting build table widget, missing data for object build'); }
+			if (ts.debug(c, 'build')) {
+				console.error('Build >> ERROR: Aborting build table widget, missing data for object build');
+			}
 			return false;
 		}
 
@@ -365,7 +381,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 		// Build thead
 		// h = [ ['headerRow1Cell1', 'headerRow1Cell2', ... 'headerRow1CellN' ], ['headerRow2Cell1', ... ] ]
 		// or h = [ [ { text: 'firstCell', class: 'fc', width: '20%' }, ..., { text: 'last Cell' } ], [ /* second row */ ] ]
-		$.each(h, function(i, d){
+		$.each(h, function(i, d) {
 			$tr = $('<tr>').appendTo( $t.find('thead') );
 			l = d.length; // header row
 			for ( j = 0; j < l; j++ ) {
@@ -382,14 +398,14 @@ var ts = $.tablesorter = $.tablesorter || {},
 
 		$tb = $('<tbody>');
 		// Build tbody
-		$.each(r, function(i, d){
+		$.each(r, function(i, d) {
 			var j;
 			t = $.type(d) === 'object';
 			// add new tbody
 			if (t && d.newTbody) {
 				$tb = $('<tbody>').appendTo( $t );
 				for (j in d) {
-					if (d.hasOwnProperty(j) && j !== 'newTbody'){
+					if (d.hasOwnProperty(j) && j !== 'newTbody') {
 						$tb.attr(j, d[j]);
 					}
 				}
@@ -403,7 +419,7 @@ var ts = $.tablesorter = $.tablesorter || {},
 				if (t) {
 					// row defined by object
 					for (j in d) {
-						if (d.hasOwnProperty(j) && j !== wo.build_objectCellKey){
+						if (d.hasOwnProperty(j) && j !== wo.build_objectCellKey) {
 							$tr.attr(j, d[j]);
 						}
 					}

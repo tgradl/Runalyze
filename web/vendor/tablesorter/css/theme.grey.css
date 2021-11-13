@@ -85,8 +85,7 @@
 	cursor: default;
 }
 .tablesorter-grey thead .sorter-false i.tablesorter-icon {
-	background-image: none;
-	padding: 4px;
+	display: none;
 }
 
 /* tfoot */
@@ -114,25 +113,28 @@
  you'll need to add additional lines for
  rows with more than 2 child rows
  */
+.tablesorter-grey tbody > tr.hover > td,
 .tablesorter-grey tbody > tr:hover > td,
 .tablesorter-grey tbody > tr:hover + tr.tablesorter-childRow > td,
 .tablesorter-grey tbody > tr:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td,
+.tablesorter-grey tbody > tr.even.hover > td,
 .tablesorter-grey tbody > tr.even:hover > td,
 .tablesorter-grey tbody > tr.even:hover + tr.tablesorter-childRow > td,
 .tablesorter-grey tbody > tr.even:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td {
-	background: #134b78;
+	background-color: #134b78;
 }
+.tablesorter-grey tbody > tr.odd.hover > td,
 .tablesorter-grey tbody > tr.odd:hover > td,
 .tablesorter-grey tbody > tr.odd:hover + tr.tablesorter-childRow > td,
 .tablesorter-grey tbody > tr.odd:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td {
-	background: #134b78;
+	background-color: #134b78;
 }
 
 /* table processing indicator */
 .tablesorter-grey .tablesorter-processing {
 	background-position: center center !important;
 	background-repeat: no-repeat !important;
-	/* background-image: url(../addons/pager/icons/loading.gif) !important; */
+	/* background-image: url(images/loading.gif) !important; */
 	background-image: url('data:image/gif;base64,R0lGODlhFAAUAKEAAO7u7lpaWgAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQBCgACACwAAAAAFAAUAAACQZRvoIDtu1wLQUAlqKTVxqwhXIiBnDg6Y4eyx4lKW5XK7wrLeK3vbq8J2W4T4e1nMhpWrZCTt3xKZ8kgsggdJmUFACH5BAEKAAIALAcAAAALAAcAAAIUVB6ii7jajgCAuUmtovxtXnmdUAAAIfkEAQoAAgAsDQACAAcACwAAAhRUIpmHy/3gUVQAQO9NetuugCFWAAAh+QQBCgACACwNAAcABwALAAACE5QVcZjKbVo6ck2AF95m5/6BSwEAIfkEAQoAAgAsBwANAAsABwAAAhOUH3kr6QaAcSrGWe1VQl+mMUIBACH5BAEKAAIALAIADQALAAcAAAIUlICmh7ncTAgqijkruDiv7n2YUAAAIfkEAQoAAgAsAAAHAAcACwAAAhQUIGmHyedehIoqFXLKfPOAaZdWAAAh+QQFCgACACwAAAIABwALAAACFJQFcJiXb15zLYRl7cla8OtlGGgUADs=') !important;
 }
 
@@ -174,13 +176,16 @@
 }
 
 /* caption */
-caption {
-	background: #fff;
+.tablesorter-grey > caption {
+	background-color: #fff;
 }
 
 /* filter widget */
+.tablesorter-grey .tablesorter-filter-row {
+	background-color: #3c3c3c;
+}
 .tablesorter-grey .tablesorter-filter-row td {
-	background: #3c3c3c;
+	background-color: #3c3c3c;
 	line-height: normal;
 	text-align: center; /* center the input */
 	-webkit-transition: line-height 0.1s ease;

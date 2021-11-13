@@ -1,11 +1,11 @@
-/*! Roman numeral parsers
+/*! Parser: roman - updated 6/28/MMXIV (v2.17.3) *//*
  * code modified from both:
  * Steven Levithan @ http://blog.stevenlevithan.com/archives/javascript-roman-numeral-converter
  * Jonathan Snook comment @ http://blog.stevenlevithan.com/archives/javascript-roman-numeral-converter#comment-16140
  */
 /*jshint jquery:true, unused:false */
-;(function($){
-"use strict";
+;(function($) {
+	'use strict';
 
 	// allow lower case roman numerals, since lists use i, ii, iii, etc.
 	var validator = /^M*(?:D?C{0,3}|C[MD])(?:L?X{0,3}|X[CL])(?:V?I{0,3}|I[XV])$/i,
@@ -14,7 +14,7 @@
 
 	$.tablesorter.addParser({
 		id: 'roman',
-		is: function(){
+		is: function() {
 			return false;
 		},
 		format: function(s) {
@@ -34,12 +34,12 @@
 
 			return num;
 		},
-		type: "numeric"
+		type: 'numeric'
 	});
 
 	$.tablesorter.addParser({
 		id: 'roman-ignore',
-		is: function(){
+		is: function() {
 			return false;
 		},
 		format: function(s, table, cell, column) {
@@ -75,18 +75,18 @@
 
 			return num ? s.replace(orig, num) : s;
 		},
-		type: "text"
+		type: 'text'
 	});
 
 	$.tablesorter.addParser({
 		id: 'roman-extract',
-		is: function(){
+		is: function() {
 			return false;
 		},
 		format: function(s) {
 			var val,
 				// find roman numerals
-				roman = $.grep(s.split(/\b/), function(v, i){
+				roman = $.grep(s.split(/\b/), function(v) {
 					return validator.test(v) ? v : '';
 				}).join('').match(matcher),
 
@@ -111,7 +111,7 @@
 
 			return num ? num : s;
 		},
-		type: "numeric"
+		type: 'numeric'
 	});
 
 })(jQuery);

@@ -96,6 +96,7 @@ jQuery.timeago.settings.cutoff = 1000*60*60*24;
 
 | Version | Notes                                                                           |
 |---------|---------------------------------------------------------------------------------|
+|   1.6.x | ([compare][compare-1.6]) Wraped locales in UMD wrappers; locale improvements    |
 |   1.5.x | ([compare][compare-1.5]) Added Date as argument to update function; locales     |
 |   1.4.x | ([compare][compare-1.4]) Added allowPast setting; locale updates                |
 |   1.3.x | ([compare][compare-1.3]) Added updateFromDOM function; bug fixes; bower support |
@@ -109,6 +110,7 @@ jQuery.timeago.settings.cutoff = 1000*60*60*24;
 |   0.7.x | ([compare][compare-0.7]) locale function overrides; unit tests                  |
 |     ... | ...                                                                             |
 
+[compare-1.6]: https://github.com/rmm5t/jquery-timeago/compare/v1.5.4...v1.6.7
 [compare-1.5]: https://github.com/rmm5t/jquery-timeago/compare/v1.4.3...v1.5.4
 [compare-1.4]: https://github.com/rmm5t/jquery-timeago/compare/v1.3.2...v1.4.3
 [compare-1.3]: https://github.com/rmm5t/jquery-timeago/compare/v1.2.0...v1.3.2
@@ -125,8 +127,6 @@ jQuery.timeago.settings.cutoff = 1000*60*60*24;
 
 [Ryan McGeary](http://ryan.mcgeary.org) ([@rmm5t](http://twitter.com/rmm5t))
 
-## Other
+## License
 
-[MIT License](http://www.opensource.org/licenses/mit-license.php)
-
-Copyright (c) 2008-2017, Ryan McGeary (ryan -[at]- mcgeary [*dot*] org)
+[MIT License](https://rmm5t.mit-license.org/)
