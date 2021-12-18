@@ -1,3 +1,4 @@
+.vscode/
 node_modules
 # ignore tmp files from php composer
 vendor/composer/tmp-*
