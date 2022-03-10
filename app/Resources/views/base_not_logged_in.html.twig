@@ -33,20 +33,20 @@
 
                 <h1>{{ page_title|default('RUNALYZE') }}</h1>
             </div>
-
+<!--
             <div class="panel-content">
                 <p class="c text">
                     <img src="{{ asset('assets/images/runalyze-start.png') }}">
                 </p>
             </div>
-
+-->
             <div class="panel-content">
                 <div class="installer-window-container">
                     <div class="w50" id="login-window">
                         {% block content %}
                         {% endblock %}
                     </div>
-
+<!--
                     <div id="login-panel">
                         {% if app.request.get('_route') == 'login' %}
                         <a href="{{ path('register') }}"><i class="fa fa-fw fa-lg fa-user"></i> {% trans %}Sign up now{% endtrans %}</a>
@@ -69,6 +69,9 @@
 
                         &copy; {{ "now"|date("Y") }} RUNALYZE Team
                     </p>
+
+-->
+
                 </div>
             </div>
         </div>
