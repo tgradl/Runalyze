@@ -157,9 +157,9 @@ class JsonImporterTest extends \PHPUnit_Framework_TestCase
 		$newTypeId = $this->DB->query('SELECT `id` FROM `runalyze_type` WHERE `accountid`='.$this->AccountID.' AND `name`="Newtype"')->fetchColumn();
         $newTypesSportId = $this->DB->query('SELECT `sportid` FROM `runalyze_type` WHERE `accountid`='.$this->AccountID.' AND `name`="Newtype"')->fetchColumn();
 
-		$this->assertNotEquals(0, $newSportId);
-		$this->assertNotEquals(0, $newTypeId);
-        $this->assertEquals($newSportId, $newTypesSportId);
+		$this->assertNotEquals(0, $newSportId);			// id's (rows) must exists
+		$this->assertNotEquals(0, $newTypeId);			// id's (rows) must exists
+        $this->assertEquals("2", $newTypesSportId);		// see id in default-insert.json.gz
 
 		// Check inserts
 		$this->assertEquals(
